@@ -1,0 +1,110 @@
+{
+    "dependencies": [],
+    "singleton": false,
+    "category": "schedule",
+    "author": "Maroš Kollár",
+    "homepage": "http://k-1.com",
+    "icon": "icon.png",
+    "version": "1.0.0",
+    "moduleName": "ThermostatControl",
+    "maturity": "stable",
+    "repository": {
+        "type": "git",
+        "source": "https://github.com/maros/Zway-ThermostatControl"
+    },
+    "defaults": {
+        "title": "__title__",
+        "description": "__description__",
+        "minTemperature": 15,
+        "maxTemperature": 25,
+        "unitTemperature": "celsius",
+        "offset": 0
+    },
+    "schema": {
+        "type": "object",
+        "properties": {
+            "minTemperature": {
+                "type": "integer",
+                "required": true
+            },
+            "maxTemperature": {
+                "type": "integer",
+                "required": true
+            },
+            "unitTemperature": {
+                "type": "select",
+                "enum": ["celsius", "fahrenheit"],
+                "required": true
+            },
+            "devices": {
+                "required": true,
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": true,
+                    "properties": {
+                        "device": {
+                            "field": "enum",
+                            "datasource": "namespaces",
+                            "enum": "namespaces:devices_thermostat:deviceName",
+                            "required": true
+                        },
+                        "minTemperature": {
+                            "type": "number"
+                        },
+                        "maxTemperature": {
+                            "type": "number"
+                        },
+                        "offset": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "required": true
+    },
+    "options": {
+        "fields": {
+            "minTemperature": {
+                "label": "__min_temperature_label__",
+                "type": "text"
+            },
+            "maxTemperature": {
+                "label": "__max_temperature_label__",
+                "type": "text"
+            },
+            "unitTemperature": {
+                "label": "__unit_temperature_label__",
+                "optionLabels": ["°C", "°F"]
+            },
+            "devices": {
+                "label": "__devices_label__",
+                "fields": {
+                    "item": {
+                        "fields": {
+                            "device": {
+                                "type": "select",
+                                "datasource": "namespaces",
+                                "field": "optionLabels",
+                                "optionLabels": "namespaces:devices_thermostat:deviceName"
+                            },
+                            "minTemperature": {
+                                "label": "__min_temperature_label__",
+                                "type": "text"
+                            },
+                            "maxTemperature": {
+                                "label": "__max_temperature_label__",
+                                "type": "text"
+                            },
+                            "offset": {
+                                "label": "__offset_label__",
+                                "type": "text"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
