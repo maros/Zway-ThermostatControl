@@ -1,7 +1,7 @@
 {
     "dependencies": [],
     "singleton": false,
-    "category": "schedule",
+    "category": "device_enhancements",
     "author": "Maroš Kollár",
     "homepage": "http://k-1.com",
     "icon": "icon.png",
