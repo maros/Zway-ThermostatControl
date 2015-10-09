@@ -28,10 +28,8 @@ ThermostatControl.prototype.init = function (config) {
     
     var langFile = self.controller.loadModuleLang("ThermostatControl");
     
-    this.statusId = "RandomDevice_" + self.id;
+    this.statusId = "ThermostatControl_" + self.id;
     this.status = loadObject(this.statusId);
-    this.maxTemperature = config.maxTemperature;
-    this.minTemperature = config.minTemperature;
     this.devices = config.devices;
     
     // Initialize
@@ -43,7 +41,7 @@ ThermostatControl.prototype.init = function (config) {
         defaults: {
             deviceType: 'thermostat',
             metrics: {
-                scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F',,
+                scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F',
                 level: self.status.level,
                 min: config.minTemperature,
                 max: config.maxTemperature,
@@ -79,10 +77,10 @@ ThermostatControl.prototype.stop = function() {
 ThermostatControl.prototype.setLevel = function(level) {
     var self = this;
     
-    if (level > self.maxTemperature) {
-        level = self.maxTemperature;
-    } else if (level < self.minTemperature) {
-        level = self.minTemperature;
+    if (level > self.config.maxTemperature) {
+        level = self.config.maxTemperature;
+    } else if (level < self.config.minTemperature) {
+        level = self.config.minTemperature;
     }
     
     this.set("metrics:level", level);
@@ -91,8 +89,8 @@ ThermostatControl.prototype.setLevel = function(level) {
         var deviceLevel = level;
         var deviceId = element.device;
         var offset = element.offset || 0;
-        var maxTemperature = element.maxTemperature || self.maxTemperature;
-        var minTemperature = element.minTemperature || self.minTemperature;
+        var maxTemperature = element.maxTemperature || self.config.maxTemperature;
+        var minTemperature = element.minTemperature || self.config.minTemperature;
         var device = self.controller.devices.get(deviceId);
         
         deviceLevel = deviceLevel + offset;
