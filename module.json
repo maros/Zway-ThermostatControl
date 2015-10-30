@@ -80,7 +80,53 @@
       "type" : "git"
    },
    "schema" : {
+      "definitions": {
+          "limit" {
+              "type": "object",
+              "properties": {
+                  "maxTemperature" : {
+                      "type" : "number"
+                  },
+                  "minTemperature" : {
+                      "type" : "number"
+                  }
+              }
+          },
+          "setpoint" {
+              "type": "object",
+              "properties": {
+                  "maxTemperature" : {
+                      "type" : "number"
+                  },
+                  "minTemperature" : {
+                      "type" : "number"
+                  }
+              }
+          }
+      },
       "properties" : {
+          "unitTemperature" : {
+              "enum" : [
+                 "celsius",
+                 "fahrenheit"
+              ],
+              "required" : true,
+              "type" : "select"
+           },
+           "limit": {
+               "$ref": "#/definitions/limit"
+           },
+           "defaultTemperature": {
+               "type" : "number",
+               "required": true
+           },
+           "temperature": {
+               
+           },
+           
+          
+          
+          
          "devices" : {
             "items" : {
                "properties" : {
@@ -106,22 +152,8 @@
             "required" : true,
             "type" : "array"
          },
-         "maxTemperature" : {
-            "required" : true,
-            "type" : "integer"
-         },
-         "minTemperature" : {
-            "required" : true,
-            "type" : "integer"
-         },
-         "unitTemperature" : {
-            "enum" : [
-               "celsius",
-               "fahrenheit"
-            ],
-            "required" : true,
-            "type" : "select"
-         }
+
+
       },
       "required" : true,
       "type" : "object"

@@ -3,7 +3,7 @@
 Version: 1.0.0
 (c) Maroš Kollár, 2015
 -----------------------------------------------------------------------------
-Author: maros@k-1.com <maros@k-1.com>
+Author: Maroš Kollár <maros@k-1.com>
 Description:
     Control multiple radiator valves (or thermostats) using a virtual thermostat.
 
@@ -12,6 +12,8 @@ Description:
 function ThermostatControl (id, controller) {
     // Call superconstructor first (AutomationModule)
     ThermostatControl.super_.call(this, id, controller);
+    
+    this.langFile       = undefined;
 }
 
 inherits(ThermostatControl, AutomationModule);
@@ -26,14 +28,7 @@ ThermostatControl.prototype.init = function (config) {
     ThermostatControl.super_.prototype.init.call(this, config);
     var self = this;
     
-    var langFile = self.controller.loadModuleLang("ThermostatControl");
-    
-    this.statusId = "ThermostatControl_" + self.id;
-    this.status = loadObject(this.statusId);
-    this.devices = config.devices;
-    
-    // Initialize
-    this.status.level = this.status.level || 18;
+    self.langFile = self.controller.loadModuleLang("ThermostatControl");
     
     // Create vdev
     this.vDev = this.controller.devices.create({
@@ -42,7 +37,7 @@ ThermostatControl.prototype.init = function (config) {
             deviceType: 'thermostat',
             metrics: {
                 scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F',
-                level: self.status.level,
+                level: 19,
                 min: config.minTemperature,
                 max: config.maxTemperature,
                 icon: '',
@@ -66,7 +61,7 @@ ThermostatControl.prototype.stop = function() {
     
     if (self.vDev) {
         self.controller.devices.remove(self.vDev.id);
-        self.vDev = null;
+        self.vDev = undefined;
     }
 };
 
