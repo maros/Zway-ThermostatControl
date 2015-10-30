@@ -15,7 +15,52 @@
    "maturity" : "stable",
    "moduleName" : "ThermostatControl",
    "options" : {
+      "definitions": {
+          "setpoints" {
+                     "dayofweek": {
+                        "type": "array",
+                        "items": {
+                            "enum": [1,2,3,4,5,6,7],
+                        },
+                        "uniqueItems": true
+                     },
+                     "timeFrom": {
+                         "type": "string",
+                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                     },
+                     "timeTo": {
+                         "type": "string",
+                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                     },
+                     "presenceMode": {
+                        "type": "array",
+                        "items": {
+                            "enum": ["home","away","vacation","night"],
+                        },
+                        "uniqueItems": true
+                     },
+                     "setpoint": {
+                        "type": "number",
+                        "required": true
+                     }
+          }
+      },
       "fields" : {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
          "devices" : {
             "fields" : {
                "item" : {
@@ -66,12 +111,18 @@
             "label" : "__min_temperature_label__",
             "type" : "text"
          },
+
+
+
          "unitTemperature" : {
             "label" : "__unit_temperature_label__",
             "optionLabels" : [
                "°C",
                "°F"
             ]
+         },
+         "defaultTemperature": {
+            "label": "__default_temperature_label__"
          }
       }
    },
@@ -85,21 +136,52 @@
               "type": "object",
               "properties": {
                   "maxTemperature" : {
-                      "type" : "number"
+                      "type" : "number",
+                      "minimum": 35,
+                      "min": 10
                   },
                   "minTemperature" : {
-                      "type" : "number"
+                      "type" : "number",
+                      "minimum": 35,
+                      "min": 10
                   }
               }
           },
-          "setpoint" {
-              "type": "object",
-              "properties": {
-                  "maxTemperature" : {
-                      "type" : "number"
+          "setpoints" {
+              "type": "array",
+              "items": {
+                  "type": "object",
+                  "properties": {
+                     "dayofweek": {
+                        "type": "array",
+                        "items": {
+                            "enum": [1,2,3,4,5,6,7],
+                        },
+                        "uniqueItems": true
+                     },
+                     "timeFrom": {
+                         "type": "string",
+                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                     },
+                     "timeTo": {
+                         "type": "string",
+                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                     },
+                     "presenceMode": {
+                        "type": "array",
+                        "items": {
+                            "enum": ["home","away","vacation","night"],
+                        },
+                        "uniqueItems": true
+                     },
+                     "setpoint": {
+                        "type": "number",
+                        "required": true
+                     }
                   },
-                  "minTemperature" : {
-                      "type" : "number"
+                  "dependencies": {
+                     "timeFrom": ["timeTo"],
+                     "timeTo": ["timeFrom"]
                   }
               }
           }
@@ -120,40 +202,35 @@
                "type" : "number",
                "required": true
            },
-           "temperature": {
-               
+           "globalSetpoints": {
+               "$ref": "#/definitions/setpoints"
            },
-           
-          
-          
-          
-         "devices" : {
-            "items" : {
-               "properties" : {
-                  "device" : {
-                     "datasource" : "namespaces",
-                     "enum" : "namespaces:devices_thermostat:deviceName",
-                     "field" : "enum",
-                     "required" : true
-                  },
-                  "maxTemperature" : {
-                     "type" : "number"
-                  },
-                  "minTemperature" : {
-                     "type" : "number"
-                  },
-                  "offset" : {
-                     "type" : "number"
-                  }
-               },
-               "required" : true,
-               "type" : "object"
-            },
-            "required" : true,
-            "type" : "array"
-         },
-
-
+           "zones": {
+               "type": "array",
+               "items":  {
+                    "type": "object",
+                    "properties": {
+                        "devices": {
+                            "items":  {
+                                "required": true,
+                                "datasource": "namespaces",
+                                "field": "enum",
+                                "enum" : "namespaces:devices_thermostat:deviceName"
+                            },
+                            "type": "array",
+                            "minItems": 1,
+                            "uniqueItems": true
+                        },
+                        "limit": {
+                            "$ref": "#/definitions/limit"
+                        },
+                        "setpoints": {
+                            "$ref": "#/definitions/setpoints"
+                        }
+                    }
+               },  
+               "minItems": 1
+           }
       },
       "required" : true,
       "type" : "object"
