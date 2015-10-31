@@ -5,7 +5,6 @@
       "description" : "__description__",
       "maxTemperature" : 25,
       "minTemperature" : 15,
-      "offset" : 0,
       "title" : "__title__",
       "unitTemperature" : "celsius"
    },
@@ -16,105 +15,46 @@
    "moduleName" : "ThermostatControl",
    "options" : {
       "definitions": {
-          "setpoints" {
+          "schedules": {
+             "items": {
+                 "fields": {
                      "dayofweek": {
-                        "type": "array",
-                        "items": {
-                            "enum": [1,2,3,4,5,6,7],
-                        },
-                        "uniqueItems": true
+                         "type":"select",
+                         "label": "__dayofweek_label__",
+                         "optionLabels": ["__dayofweek_1__","__dayofweek_2__","__dayofweek_3__","__dayofweek_4__","__dayofweek_5__","__dayofweek_6__","__dayofweek_7__"]
                      },
                      "timeFrom": {
-                         "type": "string",
-                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                         "label": "__time_from_label__"
                      },
                      "timeTo": {
-                         "type": "string",
-                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                         "label": "__time_to_label__"
                      },
                      "presenceMode": {
-                        "type": "array",
-                        "items": {
-                            "enum": ["home","away","vacation","night"],
-                        },
-                        "uniqueItems": true
+                         "type": "checkbox",
+                         "label": "__presence_mode_label__",
+                         "optionLabels": ["__presence_mode_home__","__presence_mode_away__","__presence_mode_vacation__","__presence_mode_night__"]
                      },
                      "setpoint": {
-                        "type": "number",
-                        "required": true
+                         "type": "number",
+                         "required": true
                      }
+                 }
+             } 
+          },
+          "limit": {
+              "label": "Limit",
+              "fields": {
+                  "maxTemperature" : {
+                      "label" : "__max_temperature_label__"
+                  },
+                  "minTemperature" : {
+                      "label" : "__min_temperature_label__"
+                  }
+              }
           }
       },
-      "fields" : {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-         "devices" : {
-            "fields" : {
-               "item" : {
-                  "fields" : {
-                     "device" : {
-                        "datasource" : "namespaces",
-                        "field" : "optionLabels",
-                        "optionLabels" : "namespaces:devices_thermostat:deviceName",
-                        "type" : "select"
-                     },
-                     "maxTemperature" : {
-                        "label" : "__max_temperature_label__",
-                        "type" : "text"
-                     },
-                     "minTemperature" : {
-                        "label" : "__min_temperature_label__",
-                        "type" : "text"
-                     },
-                     /*
-                     "schedule": {
-                         // weekday, time-from, time-until
-                            "weekdays": {
-                                    "type": "checkbox",
-                                    "optionLabels": ["__monday__", "__tuesday__", "__wednesday__", "__thursday__", "__friday__", "__saturday__", "__sunday__"]
-                            },
-                                        "time": {
-                    "type": "time",
-                    "maskString": "99:99",
-                    "timeFormat": "__timeFormat__",
-                    "timeFormatRegex": "/^(([0-1][0-9])|([2][0-3])):([0-5][0-9])$/"
-            },
-                     },
-                     */
-                     "offset" : {
-                        "label" : "__offset_default_label__",
-                        "type" : "text"
-                     }
-                  }
-               }
-            },
-            "label" : "__devices_label__"
-         },
-         "maxTemperature" : {
-            "label" : "__max_temperature_label__",
-            "type" : "text"
-         },
-         "minTemperature" : {
-            "label" : "__min_temperature_label__",
-            "type" : "text"
-         },
-
-
-
-         "unitTemperature" : {
+      "fields": {
+         "unitTemperature": {
             "label" : "__unit_temperature_label__",
             "optionLabels" : [
                "°C",
@@ -122,7 +62,31 @@
             ]
          },
          "defaultTemperature": {
-            "label": "__default_temperature_label__"
+            "label": "__default_temperature_label__",
+            "helper": "__default_temperature_helper__"
+         },
+         "limit": {
+             "$ref": "#/definitions/limit"
+         },
+         "globalSetpoints": {
+             "label": "__global_schedules_label__",
+             "helper": "__global_schedules_helper__",
+             "$ref": "#/definitions/schedules"
+         },
+         "zones": {
+             "label": "__zones_label__",
+             "items": {
+                 "devices" : {
+                     "datasource" : "namespaces",
+                     "field" : "optionLabels",
+                     "optionLabels" : "namespaces:devices_thermostat:deviceName",
+                     "type" : "select"
+                 },
+                 "schedules": {
+                     "label": "__schedules_label__",
+                     "$ref": "#/definitions/schedules"
+                 }
+             }
          }
       }
    },
@@ -132,56 +96,48 @@
    },
    "schema" : {
       "definitions": {
-          "limit" {
+          "limit": {
               "type": "object",
               "properties": {
                   "maxTemperature" : {
                       "type" : "number",
-                      "minimum": 35,
-                      "min": 10
+                      "maximum": 35,
+                      "minimum": 10
                   },
                   "minTemperature" : {
                       "type" : "number",
-                      "minimum": 35,
-                      "min": 10
+                      "maximum": 35,
+                      "minimum": 10
                   }
               }
           },
-          "setpoints" {
+          "schedules": {
               "type": "array",
               "items": {
                   "type": "object",
                   "properties": {
                      "dayofweek": {
                         "type": "array",
-                        "items": {
-                            "enum": [1,2,3,4,5,6,7],
-                        },
-                        "uniqueItems": true
+                        "enum": ["1","2","3","4","5","6","7"]
                      },
                      "timeFrom": {
                          "type": "string",
-                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                         "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$"
                      },
                      "timeTo": {
                          "type": "string",
-                         "pattern" : "^(([01]?[0-9]|(2[0-3])):([0-5][0-9])$"
+                         "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$"
                      },
                      "presenceMode": {
                         "type": "array",
-                        "items": {
-                            "enum": ["home","away","vacation","night"],
-                        },
-                        "uniqueItems": true
+                        "enum": ["home","away","vacation","night"]
                      },
                      "setpoint": {
                         "type": "number",
+                        "maximum": 35,
+                        "minimum": 10,
                         "required": true
                      }
-                  },
-                  "dependencies": {
-                     "timeFrom": ["timeTo"],
-                     "timeTo": ["timeFrom"]
                   }
               }
           }
@@ -203,7 +159,7 @@
                "required": true
            },
            "globalSetpoints": {
-               "$ref": "#/definitions/setpoints"
+               "$ref": "#/definitions/schedules"
            },
            "zones": {
                "type": "array",
@@ -215,7 +171,7 @@
                                 "required": true,
                                 "datasource": "namespaces",
                                 "field": "enum",
-                                "enum" : "namespaces:devices_thermostat:deviceName"
+                                "enum" : "namespaces:devices_thermostat:deviceId"
                             },
                             "type": "array",
                             "minItems": 1,
@@ -224,8 +180,8 @@
                         "limit": {
                             "$ref": "#/definitions/limit"
                         },
-                        "setpoints": {
-                            "$ref": "#/definitions/setpoints"
+                        "schedules": {
+                            "$ref": "#/definitions/schedules"
                         }
                     }
                },  
