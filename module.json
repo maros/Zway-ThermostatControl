@@ -25,10 +25,9 @@
                      },
                      "dayofweek": {
                          "order": 2,
-                         "type":"select",
                          "type": "checkbox",
                          "label": "__dayofweek_label__",
-                         "optionLabels": ["__dayofweek_1__","__dayofweek_2__","__dayofweek_3__","__dayofweek_4__","__dayofweek_5__","__dayofweek_6__","__dayofweek_7__"]
+                         "optionLabels": ["__dayofweek_0__","__dayofweek_1__","__dayofweek_2__","__dayofweek_3__","__dayofweek_4__","__dayofweek_5__","__dayofweek_6__"]
                      },
                      "timeFrom": {
                          "order": 3,
@@ -44,6 +43,7 @@
                             "__mode_absolute_label__",
                             "__mode_relative_label__"
                          ],
+                         "type":"select",
                          "label": "__mode_label__",
                          "required" : true,
                          "helper": "__mode_helper__"
@@ -146,7 +146,7 @@
                       "dayofweek": ["timeTo","timeFrom"],
                       "timeTo": ["timeFrom"],
                       "timeFrom": ["timeTo"]
-                  }
+                  },
                   "properties": {
                      "dayofweek": {
                         "type": "array",
@@ -167,9 +167,8 @@
                         "enum": ["home","away","vacation","night"]
                      },
                      "mode" : {
-                         "type": "number",
                          "default": "absolute",
-                         "optionLabels" : [
+                         "enum" : [
                             "absolute",
                             "relative"
                          ],
