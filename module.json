@@ -3,8 +3,6 @@
    "category" : "device_enhancements",
    "defaults" : {
       "description" : "__description__",
-      "maxTemperature" : 25,
-      "minTemperature" : 15,
       "title" : "__title__",
       "unitTemperature" : "celsius"
    },
@@ -18,39 +16,35 @@
           "schedules": {
              "items": {
                  "fields": {
-                     "dayofweek": {
-                         "type":"select",
-                         "label": "__dayofweek_label__",
-                         "optionLabels": ["__dayofweek_1__","__dayofweek_2__","__dayofweek_3__","__dayofweek_4__","__dayofweek_5__","__dayofweek_6__","__dayofweek_7__"]
-                     },
-                     "timeFrom": {
-                         "label": "__time_from_label__"
-                     },
-                     "timeTo": {
-                         "label": "__time_to_label__"
-                     },
                      "presenceMode": {
+                         "order": 1,
                          "type": "checkbox",
                          "label": "__presence_mode_label__",
                          "optionLabels": ["__presence_mode_home__","__presence_mode_away__","__presence_mode_vacation__","__presence_mode_night__"]
                      },
+                     "dayofweek": {
+                         "order": 2,
+                         "type":"select",
+                         "type": "checkbox",
+                         "label": "__dayofweek_label__",
+                         "optionLabels": ["__dayofweek_1__","__dayofweek_2__","__dayofweek_3__","__dayofweek_4__","__dayofweek_5__","__dayofweek_6__","__dayofweek_7__"]
+                     },
+                     "timeFrom": {
+                         "order": 3,
+                         "label": "__time_from_label__"
+                     },
+                     "timeTo": {
+                         "order": 4,
+                         "label": "__time_to_label__"
+                     },
                      "setpoint": {
+                         "label": "__setpoint_label__",
+                         "order": 5,
                          "type": "number",
                          "required": true
                      }
                  }
              } 
-          },
-          "limit": {
-              "label": "Limit",
-              "fields": {
-                  "maxTemperature" : {
-                      "label" : "__max_temperature_label__"
-                  },
-                  "minTemperature" : {
-                      "label" : "__min_temperature_label__"
-                  }
-              }
           }
       },
       "fields": {
@@ -59,31 +53,39 @@
             "optionLabels" : [
                "°C",
                "°F"
-            ]
+            ],
+            "order": 1
          },
          "defaultTemperature": {
             "label": "__default_temperature_label__",
-            "helper": "__default_temperature_helper__"
-         },
-         "limit": {
-             "$ref": "#/definitions/limit"
+            "helper": "__default_temperature_helper__",
+            "order": 2
          },
          "globalSetpoints": {
              "label": "__global_schedules_label__",
              "helper": "__global_schedules_helper__",
-             "$ref": "#/definitions/schedules"
+             "$ref": "#/definitions/schedules",
+             "order": 3
          },
          "zones": {
+             "order": 4,
              "label": "__zones_label__",
-             "items": {
+             "fields": {
                  "devices" : {
-                     "datasource" : "namespaces",
-                     "field" : "optionLabels",
-                     "optionLabels" : "namespaces:devices_thermostat:deviceName",
-                     "type" : "select"
-                 },
+                     "fields" : {
+                        "item" : {
+                           "datasource" : "namespaces",
+                           "field" : "devices",
+                           "optionLabels" : "namespaces:devices_thermostat:deviceName",
+                           "type" : "select"
+                        }
+                     },
+                     "label" : "__devices_label__",
+                     "order": 1
+                  },
                  "schedules": {
                      "label": "__schedules_label__",
+                     "order": 2,
                      "$ref": "#/definitions/schedules"
                  }
              }
@@ -96,21 +98,6 @@
    },
    "schema" : {
       "definitions": {
-          "limit": {
-              "type": "object",
-              "properties": {
-                  "maxTemperature" : {
-                      "type" : "number",
-                      "maximum": 35,
-                      "minimum": 10
-                  },
-                  "minTemperature" : {
-                      "type" : "number",
-                      "maximum": 35,
-                      "minimum": 10
-                  }
-              }
-          },
           "schedules": {
               "type": "array",
               "items": {
@@ -134,8 +121,6 @@
                      },
                      "setpoint": {
                         "type": "number",
-                        "maximum": 35,
-                        "minimum": 10,
                         "required": true
                      }
                   }
@@ -150,9 +135,6 @@
               ],
               "required" : true,
               "type" : "select"
-           },
-           "limit": {
-               "$ref": "#/definitions/limit"
            },
            "defaultTemperature": {
                "type" : "number",
@@ -176,9 +158,6 @@
                             "type": "array",
                             "minItems": 1,
                             "uniqueItems": true
-                        },
-                        "limit": {
-                            "$ref": "#/definitions/limit"
                         },
                         "schedules": {
                             "$ref": "#/definitions/schedules"
