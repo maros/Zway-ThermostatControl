@@ -42,15 +42,17 @@ ThermostatControl.prototype.init = function (config) {
                 level: config.defaultTemperature,
                 min: parseFloat(config.globalLimit.minTemperature),
                 max: parseFloat(config.globalLimit.maxTemperature),
-                icon: '',
-                title: langFile.title
+                icon: 'thermostat',
+                title: self.langFile.title
             },
         },
         overlay: {
             deviceType: 'thermostat'
         },
         handler: function(command, args) {
-            self.setLevel(args.level);
+            if (command === 'excact') {
+                self.setLevel(args.level);
+            }
         },
         moduleId: this.id
     });
@@ -60,13 +62,11 @@ ThermostatControl.prototype.init = function (config) {
         self.controller.on("presence."+presenceState, self.callbackEvent);
     });
     
-    setTimeout(self.callbackEvent,60000,'init');
+    setTimeout(self.callbackEvent,10000,'init');
 };
 
 ThermostatControl.prototype.stop = function() {
     var self = this;
-    
-    ThermostatControl.super_.prototype.stop.call(this);
     
     if (self.vDev) {
         self.controller.devices.remove(self.vDev.id);
@@ -76,7 +76,14 @@ ThermostatControl.prototype.stop = function() {
     _.each(self.presenceStates,function(presenceState) {
         self.controller.off("presence."+presenceState, self.callbackEvent);
     });
+    
+    _.each(self.timeouts,function(timeout) {
+        clearTimeout(timeout);
+    });
+    
     self.callbackEvent = undefined;
+    
+    ThermostatControl.super_.prototype.stop.call(this);
 };
 
 // ----------------------------------------------------------------------------
@@ -88,7 +95,9 @@ ThermostatControl.prototype.presenceStates = ['home','night','away','vacation'];
 ThermostatControl.prototype.calculateSetpoint = function(source) {
     var self = this;
     
-    console.error('[ThermostatControl] Calculating setpoints due to '+source);
+    source = source || 'unknown';
+    source = source.toString();
+    console.log('[ThermostatControl] Calculating setpoints due to '+source);
     
     var dateNow         = new Date();
     var dayNow          = dateNow.getDay();
@@ -97,31 +106,39 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var globalSetpoint  = self.config.defaultTemperature;
     var evalSchedule    = function(schedule) {
         // Check presence mode
+        console.log('[ThermostatControl] Check schedule');
+        console.logJS(schedule);
         var presenceMode = schedule.presenceMode;
-        if (typeof(presenceMode) === 'array' 
+        if (typeof(presenceMode) === 'object' 
             && presenceMode.length > 0
             && ! _.find(presenceMode, presenceNow)) {
             return false;
         }
-        
+        console.log('[ThermostatControl] Pres');
         // Check day of week if set
         var dayofweek = schedule.dayofweek;
-        if (typeof(dayofweek) === 'array' 
+        if (typeof(dayofweek) === 'object' 
             && dayofweek.length > 0
             && ! _.find(dayofweek, dayNow.toString())) {
             return false;
         }
+        console.log('[ThermostatControl] Dow');
         
         // Check from/to time
         var timeFrom    = self.parseTime(schedule.timeFrom);
         var timeTo      = self.parseTime(schedule.timeTo);
         if (typeof(timeFrom) === 'undefined'
             || typeof(timeTo) === 'undefined') {
-            return false;
+            return true;
         }
+        console.log('[ThermostatControl] Time');
+        
         if (timeFrom > dateNow || dateNow > timeTo) {
             return false;
         }
+        
+        console.log('[ThermostatControl] Ok');
+        
         return true;
     };
     
@@ -140,15 +157,18 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         return globalSetpoint;
     });
     
-    if (source !== 'setpoint' 
+    if (typeof(source) !== 'undefined'
+        && source !== 'setpoint' 
         && ! source.match(/^zone\.[0-9]+$/)) {
-        console.error('[ThermostatControl] Setting global to '+globalSetpoint);
+        console.log('[ThermostatControl] Setting global to '+globalSetpoint);
         self.vDev.set('metrics:level',globalSetpoint);
     }
     
+    console.logJS(self.config.zones);
+    
     _.each(self.config.zones,function(zone,index) {
         var zoneSetpoint = globalSetpoint;
-        _.find(zone.schedule,function(schedule) {
+        _.find(zone.schedules,function(schedule) {
             if (evalSchedule(schedule) == false) {
                 return;
             }
@@ -159,11 +179,12 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             }
             return zoneSetpoint;
         });
-        level = self.checkLimit(level,zone.limit);
+        zoneSetpoint = self.checkLimit(zoneSetpoint,zone.limit);
+        console.log('[ThermostatControl] Setting zone '+index+' to '+zoneSetpoint);
         
-        _.each(self.config.devices,function(device) {
+        _.each(zone.devices,function(device) {
             var deviceObject = self.controller.devices.get(device);
-            console.error('[ThermostatControl] Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
+            console.log('[ThermostatControl] Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
             deviceObject.performCommand('exact',{ 'level': zoneSetpoint });
         });
     });
@@ -176,7 +197,7 @@ ThermostatControl.prototype.presenceMode = function() {
     
     var presenceMode;
     self.controller.devices.each(function(vDev) {
-        if (vDev.get('deviceType') === 'deviceType'
+        if (vDev.get('deviceType') === 'switchBinary'
             && vDev.get('metrics:probeTitle') === 'presence') {
             presenceMode = vDev.get('metrics:mode');
         }
@@ -215,9 +236,14 @@ ThermostatControl.prototype.initTimeouts = function() {
             }
         });
     });
+    console.logJS(self.timeouts);
 };
 
 ThermostatControl.prototype.parseTime = function(timeString) {
+    if (typeof(timeString) === 'undefined') {
+        return;
+    }
+    
     var match       = timeString.match(/^(\d{1,2}):(\d{1,2})$/);
     if (!match) {
         return;
@@ -249,12 +275,14 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint) {
         var dateCalc = self.parseTime(timeString);
         while (dateCalc < dateNow 
             || (
-                typeof(dayofweek) === 'array'
+                typeof(dayofweek) === 'object'
                 && dayofweek.length > 0 
                 && ! _.find(dayofweek, dateCalc.getDay().toString())
             )) {
+            hour = dateCalc.getHours();
             dateCalc.setHours(dateCalc.getHours() + 24);
             dateCalc.setHours(hour);
+            console.log('[ThermostatControl] '+dateCalc.toISOString());
         }
         results.push();
     });
@@ -275,10 +303,10 @@ ThermostatControl.prototype.checkLimit = function(level,limit) {
     if (typeof(limit) !== 'object') {
         return level;
     }
-    if (typeof(limit.maxTemperature) !== 'undefined'
+    if (typeof(limit.maxTemperature) === 'number'
         && level > limit.maxTemperature) {
         level = limit.maxTemperature;
-    } else if (typeof(limit.minTemperature) !== 'undefined'
+    } else if (typeof(limit.minTemperature) === 'number'
         && level < limit.minTemperature) {
         level = limit.minTemperature;
     }
