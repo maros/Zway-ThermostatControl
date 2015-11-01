@@ -1,42 +1,76 @@
 # Zway-ThermostatControl
 
-Control multiple radiator valves (or thermostats) using a virtual thermostat. 
-Each controlled device can have a specified offset. Furthermore global upper
-and lower bounds can be set.
+Control multiple radiator valves or thermostats using a virtual thermostat
+using advanced rules based on presence modes, time and day of week. The
+module will create a virtual thermostat device that allows manual overriding
+of the calculated setpoints.
 
 # Configuration
 
-## devices:
+## unitTemperature
 
-List of devices that should be controlled randomly
+Handle temperatures in Celsius or Fahrenheit
 
-## devices.device:
+## defaultTemperature
 
-Device Id
+Fallback default temperature. If no specific schedule is found, this 
+temperature will be used.
 
-## devices.offset:
+## globalLimit.maxTemperature, globalLimit.minTemperature
 
-Device offset
+Allows to specify optional upper and lower bounds for the virtual thermostat
+and each controlled thermostat.
 
-## device.maxTemperature:
+## globalSchedules
 
-Max temperature. Global maxTemperature is used if this value is not specified
+A list of schedules. A schedule may apply to multiple presence modes, days
+of the week and have a starting and end time. Every schedule has a setpoint.
+If schedules overlap, only the first matching zone will be evaluated.
 
-## device.minTemperature
+## globalSchedules.presenceMode
 
-Min temperature. Global minTemperature is used if this value is not specified
+List of presence modes (see https://github.com/maros/Zway-Presence) that this
+schedule applies to. ie. allows to define low temperatures for vacations.
 
-## maxTemperature:
+## globalSchedules.dayofweek
 
-Global maximum temperature
+Days of the week that this schedule applies to. ie. allows to to specify
+higher temperatures for the weekend.
 
-## minTemperature:
+## globalSchedules.timeFrom, globalSchedules.timeTo
 
-Global minimum temperature
+Allows to specify a time (in HH:MM) when the schedule should be active.
+
+## globalSchedules.mode, globalSchedules.setpoint
+
+Based on the mode, a setpoint can be either absolute (eg. 19°C) or relative 
+(eg. -1°C). Relative setpoints augment the defaultTemperature (and global 
+setpoint for zone schedules).
+
+eg. if the global setpoint is 20°C, and the relative zone setpoint is -2°C, 
+then all radiator valves in the given zone will be set to 18°C.
+
+## zones
+
+Specify multiple temperature zones. Each zone may have additional schedules 
+that either override, or augment the global schedules.
+
+## zones.limit.maxTemperature, zones.limit.minTemperature
+
+Every zone may have its own upper and lower bounds.
+
+## devices
+
+List of thermostats that are managed by this zone.
+
+## zones.schedules
+
+Multiple schedules that override the global schedules. See globalSchedules
+for documentation.
 
 # Virtual Devices
 
-This module creates a virtual thermostat
+This module creates a virtual thermostat.
 
 # Events
 
