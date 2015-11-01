@@ -50,6 +50,10 @@ setpoint for zone schedules).
 eg. if the global setpoint is 20°C, and the relative zone setpoint is -2°C, 
 then all radiator valves in the given zone will be set to 18°C.
 
+In order to allow for manual thermostat overrides it is advisable to
+use absolute setpoints for global schedules, and relative setpoints for
+zone schedules.
+
 ## zones
 
 Specify multiple temperature zones. Each zone may have additional schedules 
@@ -70,7 +74,9 @@ for documentation.
 
 # Virtual Devices
 
-This module creates a virtual thermostat.
+This module creates a virtual thermostat which lets you manually override the 
+global setpoint. The manual override will end once the next global schedule 
+change occurs.
 
 # Events
 
