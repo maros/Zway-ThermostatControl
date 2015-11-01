@@ -16,6 +16,8 @@ function ThermostatControl (id, controller) {
     this.langFile           = undefined;
     this.minTemperature     = undefined;
     this.maxTemperature     = undefined;
+    this.vDevThermostat     = undefined;
+    this.vDevSwitch         = undefined;
     this.timeouts           = [];
 }
 
@@ -33,9 +35,9 @@ ThermostatControl.prototype.init = function (config) {
     
     self.langFile           = self.controller.loadModuleLang("ThermostatControl");
     
-    // Create vdev
-    this.vDev = this.controller.devices.create({
-        deviceId: "ThermostatControl_" + this.id,
+    // Create vdev thermostat
+    self.vDevThermostat = self.controller.devices.create({
+        deviceId: "ThermostatControl_Thermostat_" + self.id,
         defaults: {
             metrics: {
                 scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F',
@@ -57,6 +59,28 @@ ThermostatControl.prototype.init = function (config) {
         moduleId: this.id
     });
     
+    // Create vdev switch
+    self.vDevSwitch = self.controller.devices.create({
+        deviceId: "ThermostatControl_Switch_" + self.id,
+        defaults: {
+            metrics: {
+                level: 'on',
+                icon: 'thermostat',
+                title: self.langFile.title
+            },
+        },
+        overlay: {
+            deviceType: 'switchBinary'
+        },
+        handler: function(command, args) {
+            if (command === 'on' || command === 'off') {
+                this.set('metrics:level',command);
+                self.initTimeouts();
+            }
+        },
+        moduleId: this.id
+    });
+    
     self.callbackEvent = _.bind(self.calculateSetpoint,self);
     _.each(self.presenceStates,function(presenceState) {
         self.controller.on("presence."+presenceState, self.callbackEvent);
@@ -68,9 +92,14 @@ ThermostatControl.prototype.init = function (config) {
 ThermostatControl.prototype.stop = function() {
     var self = this;
     
-    if (self.vDev) {
-        self.controller.devices.remove(self.vDev.id);
-        self.vDev = undefined;
+    if (self.vDevThermostat) {
+        self.controller.devices.remove(self.vDevThermostat.id);
+        self.vDevThermostat = undefined;
+    }
+    
+    if (self.vDevSwitch) {
+        self.controller.devices.remove(self.vDevSwitch.id);
+        self.vDevSwitch = undefined;
     }
     
     _.each(self.presenceStates,function(presenceState) {
@@ -95,6 +124,10 @@ ThermostatControl.prototype.presenceStates = ['home','night','away','vacation'];
 ThermostatControl.prototype.calculateSetpoint = function(source) {
     var self = this;
     
+    if (self.vDevSwitch.get('metrics:level') === 'off') {
+        return;
+    }
+    
     source = source || 'unknown';
     source = source.toString();
     console.log('[ThermostatControl] Calculating setpoints due to '+source);
@@ -103,7 +136,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var dateNow         = new Date();
     var dayNow          = dateNow.getDay();
     var presenceNow     = self.presenceMode();
-    var setpoint        = self.vDev.get('metrics:level');
+    var setpoint        = self.vDevThermostat.get('metrics:level');
     var globalSetpoint  = self.config.defaultTemperature;
     
     var evalSchedule    = function(schedule) {
@@ -162,7 +195,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         && source !== 'setpoint' 
         && ! fromZone) {
         console.log('[ThermostatControl] Changing global to '+globalSetpoint);
-        self.vDev.set('metrics:level',globalSetpoint);
+        self.vDevThermostat.set('metrics:level',globalSetpoint);
     }
     
     // Process zones
@@ -224,6 +257,10 @@ ThermostatControl.prototype.initTimeouts = function() {
         clearTimeout(timeout);
     });
     self.timeouts = [];
+    
+    if (self.vDevSwitch.get('metrics:level') === 'off') {
+        return;
+    }
     
     var dateNow     = new Date();
     
