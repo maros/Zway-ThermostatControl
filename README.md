@@ -1,9 +1,14 @@
 # Zway-ThermostatControl
 
 Control multiple radiator valves or thermostats using a virtual thermostat
-using advanced rules based on presence modes, time and day of week. The
+using advanced schedules based on presence modes, time and day of week. The
 module will create a virtual thermostat device that allows manual overriding
-of the calculated setpoints.
+of the calculated setpoints. It also creates a binary switch that allows
+to entirely disable the thermostat (eg. for summer or for manual overrides)
+
+Multiple radiator valves or thermostats may be grouped in a zone. These zones
+may have additional schedules that either override (absolute setpoints) or 
+augment the global schedules (relative setpoints)
 
 # Configuration
 
@@ -23,14 +28,16 @@ and each controlled thermostat.
 
 ## globalSchedules
 
-A list of schedules. A schedule may apply to multiple presence modes, days
-of the week and have a starting and end time. Every schedule has a setpoint.
-If schedules overlap, only the first matching zone will be evaluated.
+A list of global schedules. A schedule may apply to one or multiple presence 
+modes, days of the week and have a starting and end time. Every schedule has 
+a setpoint. If schedule rules overlap, only the first matching schedule will 
+be processed. The order of schedules therefore matters.
 
 ## globalSchedules.presenceMode
 
 List of presence modes (see https://github.com/maros/Zway-Presence) that this
-schedule applies to. ie. allows to define low temperatures for vacations.
+schedule applies to. ie. allows to define low temperatures for vacations and
+away modes.
 
 ## globalSchedules.dayofweek
 
@@ -57,15 +64,17 @@ zone schedules.
 ## zones
 
 Specify multiple temperature zones. Each zone may have additional schedules 
-that either override, or augment the global schedules.
+that either override (absolute setpoints), or augment (relative setpoints) 
+the global schedules.
 
 ## zones.limit.maxTemperature, zones.limit.minTemperature
 
-Every zone may have its own upper and lower bounds.
+Every zone may have its own upper and lower bounds. If no values are set,
+globalLimit.maxTemperature and globalLimit.minTemperature will be used.
 
 ## devices
 
-List of thermostats that are managed by this zone.
+List of thermostats that are managed in this zone.
 
 ## zones.schedules
 
@@ -77,6 +86,9 @@ for documentation.
 This module creates a virtual thermostat which lets you manually override the 
 global setpoint. The manual override will end once the next global schedule 
 change occurs.
+
+A binary switch will also be created, allowing for disabling automated
+thermostat setpoints. (eg. for summer or for manual overrides)
 
 # Events
 
