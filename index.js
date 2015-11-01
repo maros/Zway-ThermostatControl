@@ -99,22 +99,21 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     source = source.toString();
     console.log('[ThermostatControl] Calculating setpoints due to '+source);
     
+    var fromZone        = source.match(/^zone\.[0-9]+$/);
     var dateNow         = new Date();
     var dayNow          = dateNow.getDay();
     var presenceNow     = self.presenceMode();
     var setpoint        = self.vDev.get('metrics:level');
     var globalSetpoint  = self.config.defaultTemperature;
+    
     var evalSchedule    = function(schedule) {
         // Check presence mode
-        console.log('[ThermostatControl] Check schedule');
-        console.logJS(schedule);
         var presenceMode = schedule.presenceMode;
         if (typeof(presenceMode) === 'object' 
             && presenceMode.length > 0
             && ! _.find(presenceMode, presenceNow)) {
             return false;
         }
-        console.log('[ThermostatControl] Pres');
         // Check day of week if set
         var dayofweek = schedule.dayofweek;
         if (typeof(dayofweek) === 'object' 
@@ -122,7 +121,6 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             && ! _.find(dayofweek, dayNow.toString())) {
             return false;
         }
-        console.log('[ThermostatControl] Dow');
         
         // Check from/to time
         var timeFrom    = self.parseTime(schedule.timeFrom);
@@ -131,62 +129,68 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             || typeof(timeTo) === 'undefined') {
             return true;
         }
-        console.log('[ThermostatControl] Time');
         
         if (timeFrom > dateNow || dateNow > timeTo) {
             return false;
         }
         
-        console.log('[ThermostatControl] Ok');
+        console.log('[ThermostatControl] Match schedule');
+        console.logJS(schedule);
         
         return true;
     };
     
     
-    
+    // Find global schedules
     _.find(self.config.globalSchedules,function(schedule) {
         if (evalSchedule(schedule) == false) {
             return;
         }
-        
         if (schedule.mode === 'absolute') {
             globalSetpoint = parseFloat(schedule.setpoint);
         } else if (schedule.mode === 'relative') {
             globalSetpoint = self.config.defaultTemperature + parseFloat(schedule.setpoint)
         }
-        return globalSetpoint;
+        globalSetpoint = self.checkLimit(globalSetpoint);
+        return true;
     });
     
-    if (typeof(source) !== 'undefined'
+    // Change setpoint
+    if (setpoint !== globalSetpoint
         && source !== 'setpoint' 
-        && ! source.match(/^zone\.[0-9]+$/)) {
-        console.log('[ThermostatControl] Setting global to '+globalSetpoint);
+        && ! fromZone) {
+        console.log('[ThermostatControl] Changing global to '+globalSetpoint);
         self.vDev.set('metrics:level',globalSetpoint);
     }
     
-    console.logJS(self.config.zones);
-    
+    // Process zones
     _.each(self.config.zones,function(zone,index) {
         var zoneSetpoint = globalSetpoint;
-        _.find(zone.schedules,function(schedule) {
-            if (evalSchedule(schedule) == false) {
-                return;
-            }
-            if (schedule.mode === 'absolute') {
-                zoneSetpoint = parseFloat(schedule.setpoint);
-            } else if (schedule.mode === 'relative') {
-                zoneSetpoint = globalSetpoint + parseFloat(schedule.setpoint)
-            }
-            return zoneSetpoint;
-        });
-        zoneSetpoint = self.checkLimit(zoneSetpoint,zone.limit);
-        console.log('[ThermostatControl] Setting zone '+index+' to '+zoneSetpoint);
         
-        _.each(zone.devices,function(device) {
-            var deviceObject = self.controller.devices.get(device);
-            console.log('[ThermostatControl] Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
-            deviceObject.performCommand('exact',{ 'level': zoneSetpoint });
-        });
+        if (source === 'zone.'+index 
+            || ! fromZone) {
+            // Find zone schedules
+            _.find(zone.schedules,function(schedule) {
+                if (evalSchedule(schedule) == false) {
+                    return;
+                }
+                if (schedule.mode === 'absolute') {
+                    zoneSetpoint = parseFloat(schedule.setpoint);
+                } else if (schedule.mode === 'relative') {
+                    zoneSetpoint = globalSetpoint + parseFloat(schedule.setpoint)
+                }
+                return zoneSetpoint;
+            });
+            zoneSetpoint = self.checkLimit(zoneSetpoint,zone.limit);
+            console.log('[ThermostatControl] Changing zone '+index+' to '+zoneSetpoint);
+            
+            // Set devices
+            _.each(zone.devices,function(device) {
+                var deviceObject = self.controller.devices.get(device);
+                console.log('[ThermostatControl] Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
+                deviceObject.performCommand('exact',{ 'level': zoneSetpoint });
+            });
+        }
     });
     
     self.initTimeouts();
@@ -251,7 +255,7 @@ ThermostatControl.prototype.parseTime = function(timeString) {
     var hour        = parseInt(match[1]);
     var minute      = parseInt(match[2]);
     var dateCalc    = new Date();
-    dateCalc.setHours(hour, minute);
+    dateCalc.setHours(hour, minute,0,0);
     
     return dateCalc;
 };
@@ -277,14 +281,14 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint) {
             || (
                 typeof(dayofweek) === 'object'
                 && dayofweek.length > 0 
-                && ! _.find(dayofweek, dateCalc.getDay().toString())
+                && _.find(dayofweek, dateCalc.getDay().toString())
             )) {
             hour = dateCalc.getHours();
             dateCalc.setHours(dateCalc.getHours() + 24);
             dateCalc.setHours(hour);
-            console.log('[ThermostatControl] '+dateCalc.toISOString());
+            
         }
-        results.push();
+        results.push(dateCalc);
     });
     
     if (results.length === 0) {
@@ -292,7 +296,6 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint) {
     }
         
     results.sort();
-    console.log('[ThermostatControl] '+results[0]);
     return (results[0].getTime() - dateNow.getTime());
 };
 
@@ -300,22 +303,24 @@ ThermostatControl.prototype.checkLimit = function(level,limit) {
     var self = this;
     level = parseFloat(level);
     
-    if (typeof(limit) !== 'object') {
-        return level;
-    }
-    if (typeof(limit.maxTemperature) === 'number'
-        && level > limit.maxTemperature) {
-        level = limit.maxTemperature;
-    } else if (typeof(limit.minTemperature) === 'number'
-        && level < limit.minTemperature) {
-        level = limit.minTemperature;
+    // TODO fallback limits?
+    limit   = limit || {};
+    var max = limit.maxTemperature || self.config.globalLimit.maxTemperature;
+    var min = limit.minTemperature || self.config.globalLimit.minTemperature;
+    
+    if (typeof(max) === 'number'
+        && level > max) {
+        level = max;
+    } else if (typeof(min) === 'number'
+        && level < min) {
+        level = min;
     }
     return level;
 };
 
 ThermostatControl.prototype.setLevel = function(level) {
     var self = this;
-    level = self.checkLimit(level,self.config.globalLimit);
+    level = self.checkLimit(level);
     this.set("metrics:level", level);
     self.calculateSetpoint('setpoint');
 };
