@@ -17,6 +17,7 @@
    "max_temperature_label" : "Max Temperature",
    "min_temperature_label" : "Min Temperature",
    "mode_absolute_label" : "Absolute",
+   "mode_helper" : "Set absolute (eg 21) or relative setpoints (eg. -2)",
    "mode_label" : "Setpoint Mode",
    "mode_relative_label" : "Relative",
    "presence_mode_away" : "Away",
