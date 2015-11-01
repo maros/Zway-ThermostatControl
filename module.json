@@ -6,118 +6,133 @@
       "title" : "__title__",
       "unitTemperature" : "celsius"
    },
-   "dependencies" : ["Presence"],
+   "dependencies" : [
+      "Presence"
+   ],
    "homepage" : "http://k-1.com",
    "icon" : "icon.png",
    "maturity" : "stable",
    "moduleName" : "ThermostatControl",
    "options" : {
-      "definitions": {
-          "schedules": {
-             "label": "__schedule_label__",
-             "items": {
-                 "fields": {
-                     "presenceMode": {
-                         "order": 1,
-                         "type": "checkbox",
-                         "label": "__presence_mode_label__",
-                         "optionLabels": ["__presence_mode_home__","__presence_mode_away__","__presence_mode_vacation__","__presence_mode_night__"]
-                     },
-                     "dayofweek": {
-                         "order": 2,
-                         "type": "checkbox",
-                         "label": "__dayofweek_label__",
-                         "optionLabels": ["__dayofweek_0__","__dayofweek_1__","__dayofweek_2__","__dayofweek_3__","__dayofweek_4__","__dayofweek_5__","__dayofweek_6__"]
-                     },
-                     "timeFrom": {
-                         "order": 3,
-                         "label": "__time_from_label__"
-                     },
-                     "timeTo": {
-                         "order": 4,
-                         "label": "__time_to_label__"
-                     },
-                     "mode" : {
-                         "order": 5,
-                         "optionLabels" : [
-                            "__mode_absolute_label__",
-                            "__mode_relative_label__"
-                         ],
-                         "type":"select",
-                         "label": "__mode_label__",
-                         "required" : true,
-                         "helper": "__mode_helper__"
-                      },
-                     "setpoint": {
-                         "label": "__setpoint_label__",
-                         "order": 6,
-                         "required": true
-                     }
-                 }
-             } 
-          },
-          "limit": {
-              "label": "__label_limit__",
-              "fields": {
-                  "maxTemperature" : {
-                      "label" : "__max_temperature_label__"
+      "definitions" : {
+         "limit" : {
+            "fields" : {
+               "maxTemperature" : {
+                  "label" : "__max_temperature_label__"
+               },
+               "minTemperature" : {
+                  "label" : "__min_temperature_label__"
+               }
+            },
+            "label" : "__label_limit__"
+         },
+         "schedules" : {
+            "items" : {
+               "fields" : {
+                  "dayofweek" : {
+                     "label" : "__dayofweek_label__",
+                     "optionLabels" : [
+                        "__dayofweek_0__",
+                        "__dayofweek_1__",
+                        "__dayofweek_2__",
+                        "__dayofweek_3__",
+                        "__dayofweek_4__",
+                        "__dayofweek_5__",
+                        "__dayofweek_6__"
+                     ],
+                     "order" : 2,
+                     "type" : "checkbox"
                   },
-                  "minTemperature" : {
-                      "label" : "__min_temperature_label__"
+                  "mode" : {
+                     "helper" : "__mode_helper__",
+                     "label" : "__mode_label__",
+                     "optionLabels" : [
+                        "__mode_absolute_label__",
+                        "__mode_relative_label__"
+                     ],
+                     "order" : 5,
+                     "required" : true,
+                     "type" : "select"
+                  },
+                  "presenceMode" : {
+                     "label" : "__presence_mode_label__",
+                     "optionLabels" : [
+                        "__presence_mode_home__",
+                        "__presence_mode_away__",
+                        "__presence_mode_vacation__",
+                        "__presence_mode_night__"
+                     ],
+                     "order" : 1,
+                     "type" : "checkbox"
+                  },
+                  "setpoint" : {
+                     "label" : "__setpoint_label__",
+                     "order" : 6,
+                     "required" : true
+                  },
+                  "timeFrom" : {
+                     "label" : "__time_from_label__",
+                     "order" : 3
+                  },
+                  "timeTo" : {
+                     "label" : "__time_to_label__",
+                     "order" : 4
                   }
-              }
-          }
+               }
+            },
+            "label" : "__schedule_label__"
+         }
       },
-      "fields": {
-         "unitTemperature": {
+      "fields" : {
+         "defaultTemperature" : {
+            "helper" : "__default_temperature_helper__",
+            "label" : "__default_temperature_label__",
+            "order" : 2
+         },
+         "globalLimit" : {
+            "$ref" : "#/definitions/limit",
+            "order" : 3
+         },
+         "globalSchedules" : {
+            "$ref" : "#/definitions/schedules",
+            "helper" : "__global_schedules_helper__",
+            "label" : "__global_schedules_label__",
+            "order" : 4
+         },
+         "unitTemperature" : {
             "label" : "__unit_temperature_label__",
             "optionLabels" : [
                "°C",
                "°F"
             ],
-            "order": 1
+            "order" : 1
          },
-         "defaultTemperature": {
-            "label": "__default_temperature_label__",
-            "helper": "__default_temperature_helper__",
-            "order": 2
-         },
-         "globalSchedules": {
-             "label": "__global_schedules_label__",
-             "helper": "__global_schedules_helper__",
-             "$ref": "#/definitions/schedules",
-             "order": 4
-         },
-         "globalLimit": {
-             "$ref": "#/definitions/limit",
-             "order": 3
-         },
-         "zones": {
-             "order": 5,
-             "label": "__zones_label__",
-             "fields": {
-                 "limit": {
-                     "$ref": "#/definitions/limit"
-                 },
-                 "devices" : {
-                     "label" : "__devices_label__",
-                     "order": 1,
-                     "fields" : {
-                        "item" : {
-                           "label" : "__devices_label__",
-                           "datasource" : "namespaces",
-                           "field" : "devices",
-                           "optionLabels" : "namespaces:devices_thermostat:deviceName",
-                           "type" : "select"
-                        }
+         "zones" : {
+            "fields" : {
+               "devices" : {
+                  "fields" : {
+                     "item" : {
+                        "datasource" : "namespaces",
+                        "field" : "devices",
+                        "label" : "__devices_label__",
+                        "optionLabels" : "namespaces:devices_thermostat:deviceName",
+                        "type" : "select"
                      }
                   },
-                 "schedules": {
-                     "label": "__zone_schedules_label__",
-                     "order": 2,
-                     "$ref": "#/definitions/schedules"
-                 }
-             }
+                  "label" : "__devices_label__",
+                  "order" : 1
+               },
+               "limit" : {
+                  "$ref" : "#/definitions/limit"
+               },
+               "schedules" : {
+                  "$ref" : "#/definitions/schedules",
+                  "label" : "__zone_schedules_label__",
+                  "order" : 2
+               }
+            },
+            "label" : "__zones_label__",
+            "order" : 5
          }
       }
    },
@@ -126,108 +141,128 @@
       "type" : "git"
    },
    "schema" : {
-      "definitions": {
-          "limit": {
-              "type": "object",
-              "properties": {
-                  "maxTemperature" : {
-                      "type" : "number"
+      "definitions" : {
+         "limit" : {
+            "properties" : {
+               "maxTemperature" : {
+                  "type" : "number"
+               },
+               "minTemperature" : {
+                  "type" : "number"
+               }
+            },
+            "type" : "object"
+         },
+         "schedules" : {
+            "items" : {
+               "dependencies" : {
+                  "dayofweek" : [
+                     "timeTo",
+                     "timeFrom"
+                  ],
+                  "timeFrom" : [
+                     "timeTo"
+                  ],
+                  "timeTo" : [
+                     "timeFrom"
+                  ]
+               },
+               "properties" : {
+                  "dayofweek" : {
+                     "enum" : [
+                        "0",
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6"
+                     ],
+                     "type" : "array"
                   },
-                  "minTemperature" : {
-                      "type" : "number"
-                  }
-              }
-          },
-          "schedules": {
-              "type": "array",
-              "items": {
-                  "type": "object",
-                  "dependencies": {
-                      "dayofweek": ["timeTo","timeFrom"],
-                      "timeTo": ["timeFrom"],
-                      "timeFrom": ["timeTo"]
+                  "mode" : {
+                     "default" : "absolute",
+                     "enum" : [
+                        "absolute",
+                        "relative"
+                     ],
+                     "required" : true
                   },
-                  "properties": {
-                     "dayofweek": {
-                        "type": "array",
-                        "enum": ["0","1","2","3","4","5","6"]
-                     },
-                     "timeFrom": {
-                         "type": "string",
-                         "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$",
-                         "placeholder" : "__time_placeholder__"
-                     },
-                     "timeTo": {
-                         "type": "string",
-                         "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$",
-                         "placeholder" : "__time_placeholder__"
-                     },
-                     "presenceMode": {
-                        "type": "array",
-                        "enum": ["home","away","vacation","night"]
-                     },
-                     "mode" : {
-                         "default": "absolute",
-                         "enum" : [
-                            "absolute",
-                            "relative"
-                         ],
-                         "required" : true
-                      },
-                     "setpoint": {
-                        "type": "number",
-                        "required": true
-                     }
+                  "presenceMode" : {
+                     "enum" : [
+                        "home",
+                        "away",
+                        "vacation",
+                        "night"
+                     ],
+                     "type" : "array"
+                  },
+                  "setpoint" : {
+                     "required" : true,
+                     "type" : "number"
+                  },
+                  "timeFrom" : {
+                     "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$",
+                     "placeholder" : "__time_placeholder__",
+                     "type" : "string"
+                  },
+                  "timeTo" : {
+                     "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$",
+                     "placeholder" : "__time_placeholder__",
+                     "type" : "string"
                   }
-              }
-          }
+               },
+               "type" : "object"
+            },
+            "type" : "array"
+         }
       },
       "properties" : {
-          "unitTemperature" : {
-              "enum" : [
-                 "celsius",
-                 "fahrenheit"
-              ],
-              "required" : true
-           },
-           "defaultTemperature": {
-               "type" : "number",
-               "required": true
-           },
-           "globalLimit": {
-               "$ref": "#/definitions/limit"
-           },
-           "globalSchedules": {
-               "$ref": "#/definitions/schedules"
-           },
-           "zones": {
-               "type": "array",
-               "items":  {
-                    "type": "object",
-                    "properties": {
-                        "limit": {
-                            "$ref": "#/definitions/limit"
-                        },
-                        "devices" : {
-                            "title": "__devices_label__",
-                            "items" : {
-                               "datasource" : "namespaces",
-                               "enum" : "namespaces:devices_thermostat:deviceId",
-                               "field" : "enum",
-                               "required" : true
-                            },
-                            "type" : "array"
-                        },
-                        "schedules": {
-                            "$ref": "#/definitions/schedules"
-                        }
-                    }
-               },  
-               "minItems": 1
-           }
+         "defaultTemperature" : {
+            "required" : true,
+            "type" : "number"
+         },
+         "globalLimit" : {
+            "$ref" : "#/definitions/limit"
+         },
+         "globalSchedules" : {
+            "$ref" : "#/definitions/schedules"
+         },
+         "unitTemperature" : {
+            "enum" : [
+               "celsius",
+               "fahrenheit"
+            ],
+            "required" : true
+         },
+         "zones" : {
+            "items" : {
+               "properties" : {
+                  "devices" : {
+                     "items" : {
+                        "datasource" : "namespaces",
+                        "enum" : "namespaces:devices_thermostat:deviceId",
+                        "field" : "enum",
+                        "required" : true
+                     },
+                     "title" : "__devices_label__",
+                     "type" : "array"
+                  },
+                  "limit" : {
+                     "$ref" : "#/definitions/limit"
+                  },
+                  "schedules" : {
+                     "$ref" : "#/definitions/schedules"
+                  }
+               },
+               "type" : "object"
+            },
+            "minItems" : 1,
+            "type" : "array"
+         }
       },
       "type" : "object"
    },
    "singleton" : false,
-   "version" : "1.0.0"
+   "version" : "1.01"
 }
