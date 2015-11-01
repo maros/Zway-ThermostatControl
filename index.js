@@ -130,6 +130,8 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             return true;
         }
         
+        // TODO timeTo+24h if timeTo < timeFrom
+        
         if (timeFrom > dateNow || dateNow > timeTo) {
             return false;
         }
@@ -240,7 +242,6 @@ ThermostatControl.prototype.initTimeouts = function() {
             }
         });
     });
-    console.logJS(self.timeouts);
 };
 
 ThermostatControl.prototype.parseTime = function(timeString) {
