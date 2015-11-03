@@ -140,18 +140,19 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var globalSetpoint  = self.config.defaultTemperature;
     
     var evalSchedule    = function(schedule) {
+        
         // Check presence mode
-        var presenceMode = schedule.presenceMode;
-        if (typeof(presenceMode) === 'object' 
-            && presenceMode.length > 0
-            && ! _.find(presenceMode, presenceNow)) {
+        if (typeof(schedule.presenceMode) === 'object' 
+            && schedule.presenceMode.length > 0
+            && _.indexOf(schedule.presenceMode, presenceNow) === -1) {
+            console.log('[ThermostatControl] Presence not matching');
             return false;
         }
         // Check day of week if set
-        var dayofweek = schedule.dayofweek;
-        if (typeof(dayofweek) === 'object' 
-            && dayofweek.length > 0
-            && ! _.find(dayofweek, dayNow.toString())) {
+        if (typeof(schedule.dayofweek) === 'object' 
+            && schedule.dayofweek.length > 0
+            && _.indexOf(schedule.dayofweek, dayNow.toString()) === -1) {
+            console.log('[ThermostatControl] Day of week not matching');
             return false;
         }
         
@@ -160,6 +161,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         var timeTo      = self.parseTime(schedule.timeTo);
         if (typeof(timeFrom) === 'undefined'
             || typeof(timeTo) === 'undefined') {
+            console.log('[ThermostatControl] Match schedule with no time');
             return true;
         }
         
@@ -169,8 +171,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             return false;
         }
         
-        console.log('[ThermostatControl] Match schedule');
-        console.logJS(schedule);
+        console.log('[ThermostatControl] Match schedule time');
         
         return true;
     };
@@ -179,6 +180,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     // Find global schedules
     _.find(self.config.globalSchedules,function(schedule) {
         if (evalSchedule(schedule) == false) {
+            console.log('[ThermostatControl] No global match');
             return;
         }
         if (schedule.mode === 'absolute') {
