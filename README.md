@@ -92,7 +92,16 @@ thermostat setpoints. (eg. for summer or for manual overrides)
 
 # Events
 
-No events are emitted
+No events are emitted.
+
+The module listens to the following events, which are usually emitted by
+(https://github.com/maros/Zway-Presence), but may originate from any other
+module.
+
+* presence.home
+* presence.away
+* presence.vacation
+* presence.night
 
 # Installation
 
@@ -112,7 +121,6 @@ git checkout tags/1.02
 # For development version
 git checkout -b master --track origin/master
 ```
-
 
 # License
 
