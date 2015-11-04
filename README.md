@@ -95,8 +95,8 @@ thermostat setpoints. (eg. for summer or for manual overrides)
 No events are emitted.
 
 The module listens to the following events, which are usually emitted by
-(https://github.com/maros/Zway-Presence), but may originate from any other
-module.
+the Presence module ( https://github.com/maros/Zway-Presence ), but may 
+originate from any other module.
 
 * presence.home
 * presence.away
