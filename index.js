@@ -222,10 +222,12 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             console.log('[ThermostatControl] Changing zone '+index+' to '+zoneSetpoint);
             
             // Set devices
-            _.each(zone.devices,function(device) {
-                var deviceObject = self.controller.devices.get(device);
-                console.log('[ThermostatControl] Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
-                deviceObject.performCommand('exact',{ 'level': zoneSetpoint });
+            _.each(zone.devices,function(deviceId) {
+                var deviceObject = self.controller.devices.get(deviceId);
+                if (deviceObject !== null) {
+                    console.log('[ThermostatControl] Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
+                    deviceObject.performCommand('exact',{ 'level': zoneSetpoint });
+                }
             });
         }
     });
