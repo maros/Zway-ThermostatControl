@@ -241,7 +241,7 @@ ThermostatControl.prototype.presenceMode = function() {
     var presenceMode;
     self.controller.devices.each(function(vDev) {
         if (vDev.get('deviceType') === 'switchBinary'
-            && vDev.get('metrics:probeTitle') === 'presence') {
+            && vDev.get('metrics:probeTitle') === 'Presence') {
             presenceMode = vDev.get('metrics:mode');
         }
     });
