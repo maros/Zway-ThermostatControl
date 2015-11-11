@@ -12,6 +12,13 @@ augment the global schedules (relative setpoints)
 
 # Configuration
 
+This module requires the Presence module 
+(see https://github.com/maros/Zway-Presence), or any other module that behaves
+the same to be installed first. If you dont want to use the given presence 
+module, just must create a virtual switchBinary device, using 'Presence' as a 
+probeTitle and use 'metrics:level' to store the presence mode. The module 
+should also emit events on switching modes (see Events)
+
 ## unitTemperature
 
 Handle temperatures in Celsius or Fahrenheit
@@ -36,7 +43,7 @@ be processed. The order of schedules therefore matters.
 ## globalSchedules.presenceMode
 
 List of presence modes (see https://github.com/maros/Zway-Presence) that this
-schedule applies to. ie. allows to define low temperatures for vacations and
+schedule applies to. ie. allows to define lower temperatures for vacations and
 away modes.
 
 ## globalSchedules.dayofweek

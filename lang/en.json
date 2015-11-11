@@ -23,7 +23,7 @@
    "presence_mode_away" : "Away",
    "presence_mode_home" : "Home",
    "presence_mode_label" : "Presence",
-   "presence_mode_night" : "Night",
+   "presence_mode_night" : "Night Home",
    "presence_mode_vacation" : "Vacation",
    "schedule_label" : "Schedule",
    "setpoint_label" : "Setpoint",
