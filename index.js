@@ -83,7 +83,7 @@ ThermostatControl.prototype.init = function (config) {
     
     self.callbackEvent = _.bind(self.calculateSetpoint,self);
     _.each(self.presenceStates,function(presenceState) {
-        self.controller.on("presence."+presenceState, self.callbackEvent);
+        self.controller.on("presence."+presenceState, self.callbackEvent,"presence");
     });
     
     setTimeout(self.callbackEvent,10000,'init');
@@ -240,15 +240,20 @@ ThermostatControl.prototype.presenceMode = function() {
     
     var presenceMode;
     self.controller.devices.each(function(vDev) {
-        if (vDev.get('deviceType') === 'switchBinary'
-            && vDev.get('metrics:probeTitle') === 'Presence') {
-            presenceMode = vDev.get('metrics:mode');
+        if (vDev.get('deviceType') === 'switchBinary') {
+            var probeTitle = vDev.get('metrics:probeTitle')
+            if (typeof(probeTitle) !== 'undefined'
+                && probeTitle.toLowerCase() === 'presence') {
+                presenceMode = vDev.get('metrics:mode');
+            }
         }
     });
     
     if (typeof(presenceMode) === 'undefined') {
         console.error('[ThermostatControl] Could not find presence device');
         return;
+    } else {
+        console.log('[ThermostatControl] Presence mode '+presenceMode);
     }
     
     return presenceMode;
