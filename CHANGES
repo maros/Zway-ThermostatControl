@@ -1,3 +1,8 @@
+1.03 2015 Nov 15, Sun
+    * Fix presence device detection
+    * Update documentation
+    * Cleanups
+
 1.02 2015 Nov 03, Tue
     * Fix schedule calculation
     * Update documentation
