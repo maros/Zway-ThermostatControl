@@ -140,19 +140,18 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var globalSetpoint  = self.config.defaultTemperature;
     
     var evalSchedule    = function(schedule) {
-        
+        console.logJS(schedule);
         // Check presence mode
         if (typeof(schedule.presenceMode) === 'object' 
             && schedule.presenceMode.length > 0
             && _.indexOf(schedule.presenceMode, presenceNow) === -1) {
-            console.log('[ThermostatControl] Presence not matching');
             return false;
         }
+        
         // Check day of week if set
         if (typeof(schedule.dayofweek) === 'object' 
             && schedule.dayofweek.length > 0
             && _.indexOf(schedule.dayofweek, dayNow.toString()) === -1) {
-            console.log('[ThermostatControl] Day of week not matching');
             return false;
         }
         
@@ -161,17 +160,29 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         var timeTo      = self.parseTime(schedule.timeTo);
         if (typeof(timeFrom) === 'undefined'
             || typeof(timeTo) === 'undefined') {
-            console.log('[ThermostatControl] Match schedule with no time');
             return true;
         }
         
         // TODO timeTo+24h if timeTo < timeFrom
+        if (timeTo < timeFrom) {
+            if (timeTo.getDate() === dateNow.getDate()) {
+                var fromHour   = timeFrom.getHours();
+                var fromMinute = timeFrom.getMinutes();
+                timeFrom.setHours(fromHour - 24);
+                // Now fix time jump on DST
+                timeFrom.setHours(fromHour,fromMinute);
+            } else {
+                var toHour     = timeTo.getHours();
+                var toMinute   = timeTo.getMinutes();
+                timeTo.setHours(toHour + 24);
+                // Now fix time jump on DST
+                timeTo.setHours(toHour,toMinute);
+            }
+        }
         
         if (timeFrom > dateNow || dateNow > timeTo) {
             return false;
         }
-        
-        console.log('[ThermostatControl] Match schedule time');
         
         return true;
     };
@@ -267,14 +278,16 @@ ThermostatControl.prototype.initTimeouts = function() {
     });
     self.timeouts = [];
     
+    
     if (self.vDevSwitch.get('metrics:level') === 'off') {
         return;
     }
     
+    var presence    = self.presenceMode();
     var dateNow     = new Date();
     
     _.each(self.config.globalSchedules,function(schedule) {
-        var timeout = self.calculateTimeout(schedule);
+        var timeout = self.calculateTimeout(schedule,presence);
         if (typeof(timeout) !== 'undefined') {
             self.timeouts.push(setTimeout(self.callbackEvent,timeout,'global'));
         }
@@ -282,7 +295,7 @@ ThermostatControl.prototype.initTimeouts = function() {
     
     _.each(self.config.zones,function(zone,index) {
         _.each(zone.schedules,function(schedule) {
-            var timeout = self.calculateTimeout(schedule);
+            var timeout = self.calculateTimeout(schedule,presence);
             if (typeof(timeout) !== 'undefined') {
                 self.timeouts.push(setTimeout(self.callbackEvent,timeout,'zone.'+index));
             }
@@ -308,13 +321,14 @@ ThermostatControl.prototype.parseTime = function(timeString) {
 };
 
 
-ThermostatControl.prototype.calculateTimeout = function(setpoint) {
+ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
     var self = this;
     
     var dateNow     = new Date();
     var dayofweek   = setpoint.dayofweek;
     var timeFrom    = setpoint.timeFrom;
     var timeTo      = setpoint.timeTo;
+    var modes       = setpoint.presenceMode;
     var results     = [];
     
     if (typeof(timeFrom) === 'undefined'
@@ -322,20 +336,29 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint) {
         return;
     }
     
+    console.log('[ThermostatControl] Compare '+presenceMode);
+    if (typeof(modes) === 'object'
+        && modes.length > 0
+        && _.indexOf(modes, presenceMode) > -1) {
+        return;
+    }
+    
+    console.logJS(setpoint);
     _.each([timeFrom,timeTo],function(timeString) {
         var dateCalc = self.parseTime(timeString);
         while (dateCalc < dateNow 
             || (
                 typeof(dayofweek) === 'object'
                 && dayofweek.length > 0 
-                && _.find(dayofweek, dateCalc.getDay().toString())
+                && _.indexOf(dayofweek, dateCalc.getDay().toString()) === -1
             )) {
-            hour = dateCalc.getHours();
-            dateCalc.setHours(dateCalc.getHours() + 24);
-            dateCalc.setHours(hour);
-            
+            var hour = dateCalc.getHours();
+            var minute = dateCalc.getMinutes();
+            dateCalc.setHours(hour + 24);
+            dateCalc.setHours(hour,minute);
         }
         results.push(dateCalc);
+        console.log('[ThermostatControl] Next:'+timeString+'-'+dateCalc);
     });
     
     if (results.length === 0) {
