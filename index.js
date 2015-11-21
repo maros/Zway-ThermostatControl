@@ -82,8 +82,8 @@ ThermostatControl.prototype.init = function (config) {
     });
     
     self.callbackEvent = _.bind(self.calculateSetpoint,self);
-    _.each(self.presenceStates,function(presenceState) {
-        self.controller.on("presence."+presenceState, self.callbackEvent,"presence");
+    _.each(self.presenceModes,function(presenceMode) {
+        self.controller.on("presence."+presenceMode, self.callbackEvent,"presence");
     });
     
     setTimeout(self.callbackEvent,10000,'init');
@@ -102,8 +102,8 @@ ThermostatControl.prototype.stop = function() {
         self.vDevSwitch = undefined;
     }
     
-    _.each(self.presenceStates,function(presenceState) {
-        self.controller.off("presence."+presenceState, self.callbackEvent);
+    _.each(self.presenceModes,function(presenceMode) {
+        self.controller.off("presence."+presenceMode, self.callbackEvent);
     });
     
     _.each(self.timeouts,function(timeout) {
@@ -119,7 +119,7 @@ ThermostatControl.prototype.stop = function() {
 // --- Module methods
 // ----------------------------------------------------------------------------
 
-ThermostatControl.prototype.presenceStates = ['home','night','away','vacation'];
+ThermostatControl.prototype.presenceModes = ['home','night','away','vacation'];
 
 ThermostatControl.prototype.calculateSetpoint = function(source) {
     var self = this;
