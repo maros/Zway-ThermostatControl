@@ -53,7 +53,7 @@ ThermostatControl.prototype.init = function (config) {
         },
         handler: function(command, args) {
             if (command === 'exact') {
-                self.setLevel(parseFloat(args.level));
+                self.setLevel(args.level);
             }
         },
         moduleId: this.id
@@ -390,8 +390,9 @@ ThermostatControl.prototype.checkLimit = function(level,limit) {
 
 ThermostatControl.prototype.setLevel = function(level) {
     var self = this;
+    level = parseFloat(level);
     level = self.checkLimit(level);
-    this.set("metrics:level", level);
+    self.vDevThermostat.set("metrics:level", level);
     self.calculateSetpoint('setpoint');
 };
  
