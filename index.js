@@ -140,7 +140,6 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var globalSetpoint  = self.config.defaultTemperature;
     
     var evalSchedule    = function(schedule) {
-        console.logJS(schedule);
         // Check presence mode
         if (typeof(schedule.presenceMode) === 'object' 
             && schedule.presenceMode.length > 0
@@ -343,7 +342,6 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
         return;
     }
     
-    console.logJS(setpoint);
     _.each([timeFrom,timeTo],function(timeString) {
         var dateCalc = self.parseTime(timeString);
         while (dateCalc < dateNow 
