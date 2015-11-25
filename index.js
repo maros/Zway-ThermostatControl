@@ -52,8 +52,8 @@ ThermostatControl.prototype.init = function (config) {
             deviceType: 'thermostat'
         },
         handler: function(command, args) {
-            if (command === 'excact') {
-                self.setLevel(args.level);
+            if (command === 'exact') {
+                self.setLevel(parseFloat(args.level));
             }
         },
         moduleId: this.id
