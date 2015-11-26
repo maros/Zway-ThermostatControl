@@ -40,15 +40,18 @@ ThermostatControl.prototype.init = function (config) {
         deviceId: "ThermostatControl_Thermostat_" + self.id,
         defaults: {
             metrics: {
-                scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F',
                 level: config.defaultTemperature,
-                min: parseFloat(config.globalLimit.minTemperature),
-                max: parseFloat(config.globalLimit.maxTemperature),
                 icon: 'thermostat',
                 title: self.langFile.title
             },
         },
         overlay: {
+            metrics: {
+                min: parseFloat(config.globalLimit.minTemperature),
+                max: parseFloat(config.globalLimit.maxTemperature),
+                scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F'
+            }
+            probeType: 'ThermostatController',
             deviceType: 'thermostat'
         },
         handler: function(command, args) {
@@ -70,7 +73,8 @@ ThermostatControl.prototype.init = function (config) {
             },
         },
         overlay: {
-            deviceType: 'switchBinary'
+            deviceType: 'switchBinary',
+            probeType: 'ThermostatController'
         },
         handler: function(command, args) {
             if (command === 'on' || command === 'off') {
@@ -251,9 +255,9 @@ ThermostatControl.prototype.presenceMode = function() {
     var presenceMode;
     self.controller.devices.each(function(vDev) {
         if (vDev.get('deviceType') === 'switchBinary') {
-            var probeTitle = vDev.get('metrics:probeTitle')
-            if (typeof(probeTitle) !== 'undefined'
-                && probeTitle.toLowerCase() === 'presence') {
+            var probeType = vDev.get('probeType')
+            if (typeof(probeType) !== 'undefined'
+                && probeType.toLowerCase() === 'presence') {
                 presenceMode = vDev.get('metrics:mode');
             }
         }
