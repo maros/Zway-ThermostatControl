@@ -50,7 +50,7 @@ ThermostatControl.prototype.init = function (config) {
                 min: parseFloat(config.globalLimit.minTemperature),
                 max: parseFloat(config.globalLimit.maxTemperature),
                 scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F'
-            }
+            },
             probeType: 'ThermostatController',
             deviceType: 'thermostat'
         },
@@ -193,14 +193,14 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     
     // Find global schedules
     _.find(self.config.globalSchedules,function(schedule) {
-        if (evalSchedule(schedule) == false) {
+        if (evalSchedule(schedule) === false) {
             console.log('[ThermostatControl] No global match');
             return;
         }
         if (schedule.mode === 'absolute') {
             globalSetpoint = parseFloat(schedule.setpoint);
         } else if (schedule.mode === 'relative') {
-            globalSetpoint = self.config.defaultTemperature + parseFloat(schedule.setpoint)
+            globalSetpoint = self.config.defaultTemperature + parseFloat(schedule.setpoint);
         }
         globalSetpoint = self.checkLimit(globalSetpoint);
         return true;
@@ -222,13 +222,13 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             || ! fromZone) {
             // Find zone schedules
             _.find(zone.schedules,function(schedule) {
-                if (evalSchedule(schedule) == false) {
+                if (evalSchedule(schedule) === false) {
                     return;
                 }
                 if (schedule.mode === 'absolute') {
                     zoneSetpoint = parseFloat(schedule.setpoint);
                 } else if (schedule.mode === 'relative') {
-                    zoneSetpoint = globalSetpoint + parseFloat(schedule.setpoint)
+                    zoneSetpoint = globalSetpoint + parseFloat(schedule.setpoint);
                 }
                 return zoneSetpoint;
             });
@@ -240,7 +240,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
                 var deviceObject = self.controller.devices.get(deviceId);
                 if (deviceObject !== null) {
                     console.log('[ThermostatControl] Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
-                    deviceObject.performCommand('exact',{ 'level': zoneSetpoint });
+                    deviceObject.performCommand('exact',{ level: zoneSetpoint });
                 }
             });
         }
@@ -255,7 +255,7 @@ ThermostatControl.prototype.presenceMode = function() {
     var presenceMode;
     self.controller.devices.each(function(vDev) {
         if (vDev.get('deviceType') === 'switchBinary') {
-            var probeType = vDev.get('probeType')
+            var probeType = vDev.get('probeType');
             if (typeof(probeType) !== 'undefined'
                 && probeType.toLowerCase() === 'presence') {
                 presenceMode = vDev.get('metrics:mode');
@@ -315,8 +315,8 @@ ThermostatControl.prototype.parseTime = function(timeString) {
     if (!match) {
         return;
     }
-    var hour        = parseInt(match[1]);
-    var minute      = parseInt(match[2]);
+    var hour        = parseInt(match[1],10);
+    var minute      = parseInt(match[2],10);
     var dateCalc    = new Date();
     dateCalc.setHours(hour, minute,0,0);
     
