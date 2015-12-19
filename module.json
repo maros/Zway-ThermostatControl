@@ -7,7 +7,8 @@
       "unitTemperature" : "celsius"
    },
    "dependencies" : [
-      "Presence"
+      "Presence",
+      "BaseModule"
    ],
    "homepage" : "http://k-1.com",
    "icon" : "icon.png",
