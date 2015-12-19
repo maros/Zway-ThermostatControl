@@ -187,28 +187,29 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         return true;
     };
     
-    
     // Find global schedules
-    _.find(self.config.globalSchedules,function(schedule) {
-        if (evalSchedule(schedule) === false) {
-            self.log('No global match');
-            return;
+    if (source !== 'setpoint') {
+        _.find(self.config.globalSchedules,function(schedule) {
+            if (evalSchedule(schedule) === false) {
+                self.log('No global match');
+                return;
+            }
+            if (schedule.mode === 'absolute') {
+                globalSetpoint = parseFloat(schedule.setpoint);
+            } else if (schedule.mode === 'relative') {
+                globalSetpoint = self.config.defaultTemperature + parseFloat(schedule.setpoint);
+            }
+            globalSetpoint = self.checkLimit(globalSetpoint);
+            return true;
+        });
+        // Change setpoint
+        if (setpoint !== globalSetpoint
+            && ! fromZone) {
+            self.log('Changing global to '+globalSetpoint);
+            self.vDevThermostat.set('metrics:level',globalSetpoint);
         }
-        if (schedule.mode === 'absolute') {
-            globalSetpoint = parseFloat(schedule.setpoint);
-        } else if (schedule.mode === 'relative') {
-            globalSetpoint = self.config.defaultTemperature + parseFloat(schedule.setpoint);
-        }
-        globalSetpoint = self.checkLimit(globalSetpoint);
-        return true;
-    });
-    
-    // Change setpoint
-    if (setpoint !== globalSetpoint
-        && source !== 'setpoint' 
-        && ! fromZone) {
-        self.log('Changing global to '+globalSetpoint);
-        self.vDevThermostat.set('metrics:level',globalSetpoint);
+    } else {
+        globalSetpoint = setpoint;
     }
     
     // Process zones
