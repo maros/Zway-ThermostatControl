@@ -246,7 +246,6 @@
                         "field" : "enum",
                         "required" : true
                      },
-                     "title" : "__devices_label__",
                      "type" : "array"
                   },
                   "limit" : {
