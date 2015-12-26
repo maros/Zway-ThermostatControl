@@ -84,7 +84,7 @@ ThermostatControl.prototype.init = function (config) {
         moduleId: this.id
     });
     
-    self.callbackEvent = _.bind(self.calculateSetpoint,self);
+    self.callbackEvent = _.bind(self.calculateSetpoint,self,'setpoint');
     _.each(self.presenceModes,function(presenceMode) {
         self.controller.on("presence."+presenceMode, self.callbackEvent,"presence");
     });
