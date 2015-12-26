@@ -122,8 +122,6 @@ ThermostatControl.prototype.stop = function() {
 // --- Module methods
 // ----------------------------------------------------------------------------
 
-ThermostatControl.prototype.presenceModes = ['home','night','away','vacation'];
-
 ThermostatControl.prototype.calculateSetpoint = function(source) {
     var self = this;
     
@@ -236,12 +234,9 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             self.log('Changing zone '+index+' to '+zoneSetpoint);
             
             // Set devices
-            _.each(zone.devices,function(deviceId) {
-                var deviceObject = self.controller.devices.get(deviceId);
-                if (deviceObject !== null) {
-                    self.log('Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
-                    deviceObject.performCommand('exact',{ level: zoneSetpoint });
-                }
+            self.processDeviceList(zone.devices,function(deviceObject) {
+                self.log('Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
+                deviceObject.performCommand('exact',{ level: zoneSetpoint });
             });
         }
     });
@@ -281,9 +276,6 @@ ThermostatControl.prototype.initTimeouts = function() {
         });
     });
 };
-
-
-
 
 ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
     var self = this;
