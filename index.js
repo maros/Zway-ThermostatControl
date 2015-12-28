@@ -54,6 +54,7 @@ ThermostatControl.prototype.init = function (config) {
         handler: function(command, args) {
             if (command === 'exact') {
                 var level = self.checkLimit(parseFloat(args.level));
+                self.log('Manually change setpoint to '+level);
                 self.vDevThermostat.set("metrics:level", level);
                 self.calculateSetpoint('setpoint');
             }
@@ -126,6 +127,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var self = this;
     
     if (self.vDevSwitch.get('metrics:level') === 'off') {
+        self.log('Skipping setpoint calculation');
         return;
     }
     
