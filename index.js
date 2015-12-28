@@ -158,35 +158,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         }
         
         // Check from/to time
-        var timeFrom    = self.parseTime(schedule.timeFrom);
-        var timeTo      = self.parseTime(schedule.timeTo);
-        if (typeof(timeFrom) === 'undefined'
-            || typeof(timeTo) === 'undefined') {
-            return true;
-        }
-        
-        // TODO timeTo+24h if timeTo < timeFrom
-        if (timeTo < timeFrom) {
-            if (timeTo.getDate() === dateNow.getDate()) {
-                var fromHour   = timeFrom.getHours();
-                var fromMinute = timeFrom.getMinutes();
-                timeFrom.setHours(fromHour - 24);
-                // Now fix time jump on DST
-                timeFrom.setHours(fromHour,fromMinute);
-            } else {
-                var toHour     = timeTo.getHours();
-                var toMinute   = timeTo.getMinutes();
-                timeTo.setHours(toHour + 24);
-                // Now fix time jump on DST
-                timeTo.setHours(toHour,toMinute);
-            }
-        }
-        
-        if (timeFrom > dateNow || dateNow > timeTo) {
-            return false;
-        }
-        
-        return true;
+        return self.checkPeriod(schedule.timeFrom,schedule.timeTo)
     };
     
     // Find global schedules & set global setpoint
