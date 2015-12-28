@@ -158,18 +158,6 @@
          },
          "schedules" : {
             "items" : {
-               "dependencies" : {
-                  "dayofweek" : [
-                     "timeTo",
-                     "timeFrom"
-                  ],
-                  "timeFrom" : [
-                     "timeTo"
-                  ],
-                  "timeTo" : [
-                     "timeFrom"
-                  ]
-               },
                "properties" : {
                   "dayofweek" : {
                      "enum" : [
@@ -181,7 +169,8 @@
                         "5",
                         "6"
                      ],
-                     "type" : "array"
+                     "type" : "array",
+                     "dependencies": ["timeFrom","timeTo"]
                   },
                   "mode" : {
                      "default" : "absolute",
@@ -212,7 +201,8 @@
                   "timeTo" : {
                      "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$",
                      "placeholder" : "__time_placeholder__",
-                     "type" : "string"
+                     "type" : "string",
+                     "dependencies": ["timeFrom"]
                   }
                },
                "type" : "object"

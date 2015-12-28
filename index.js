@@ -158,7 +158,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         }
         
         // Check from/to time
-        return self.checkPeriod(schedule.timeFrom,schedule.timeTo)
+        return self.checkPeriod(schedule.timeFrom,schedule.timeTo);
     };
     
     // Find global schedules & set global setpoint
