@@ -109,28 +109,30 @@
             "order" : 1
          },
          "zones" : {
-            "fields" : {
-               "devices" : {
-                  "fields" : {
-                     "item" : {
-                        "datasource" : "namespaces",
-                        "field" : "devices",
-                        "label" : "__devices_label__",
-                        "optionLabels" : "namespaces:devices_thermostat:deviceName",
-                        "type" : "select"
-                     }
-                  },
-                  "label" : "__devices_label__",
-                  "order" : 1
-               },
-               "limit" : {
-                  "$ref" : "#/definitions/limit"
-               },
-               "schedules" : {
-                  "$ref" : "#/definitions/schedules",
-                  "label" : "__zone_schedules_label__",
-                  "order" : 2
-               }
+            "items" : {
+               "fields": {
+                   "devices" : {
+                      "fields" : {
+                         "item" : {
+                            "datasource" : "namespaces",
+                            "field" : "devices",
+                            "label" : "__devices_label__",
+                            "optionLabels" : "namespaces:devices_thermostat:deviceName",
+                            "type" : "select"
+                         }
+                      },
+                      "label" : "__devices_label__",
+                      "order" : 1
+                   },
+                   "limit" : {
+                      "$ref" : "#/definitions/limit"
+                   },
+                   "schedules" : {
+                      "$ref" : "#/definitions/schedules",
+                      "label" : "__zone_schedules_label__",
+                      "order" : 2
+                   }
+                }
             },
             "label" : "__zones_label__",
             "order" : 5
