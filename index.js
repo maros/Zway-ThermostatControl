@@ -189,7 +189,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         return true;
     };
     
-    // Find global schedules
+    // Find global schedules & set global setpoint
     if (source !== 'setpoint') {
         _.find(self.config.globalSchedules,function(schedule) {
             if (evalSchedule(schedule) === false) {
@@ -254,13 +254,12 @@ ThermostatControl.prototype.initTimeouts = function() {
     });
     self.timeouts = [];
     
-    
     if (self.vDevSwitch.get('metrics:level') === 'off') {
         return;
     }
     
-    var presence    = self.getPresenceMode();
-    var dateNow     = new Date();
+    var presence        = self.getPresenceMode();
+    var dateNow         = new Date();
     
     _.each(self.config.globalSchedules,function(schedule) {
         var timeout = self.calculateTimeout(schedule,presence);
@@ -294,10 +293,9 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
         return;
     }
     
-    self.log('Compare '+presenceMode);
     if (typeof(modes) === 'object'
         && modes.length > 0
-        && _.indexOf(modes, presenceMode) > -1) {
+        && _.indexOf(modes, presenceMode) !== -1) {
         return;
     }
     
