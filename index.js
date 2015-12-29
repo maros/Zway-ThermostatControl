@@ -54,7 +54,7 @@ ThermostatControl.prototype.init = function (config) {
         handler: function(command, args) {
             if (command === 'exact') {
                 var level = self.checkLimit(parseFloat(args.level));
-                self.log('Manually change setpoint to '+level);
+                self.log('Manually changing setpoint to '+level);
                 self.vDevThermostat.set("metrics:level", level);
                 self.calculateSetpoint('setpoint');
             }
@@ -85,7 +85,8 @@ ThermostatControl.prototype.init = function (config) {
         moduleId: this.id
     });
     
-    self.callbackEvent = _.bind(self.calculateSetpoint,self,'setpoint');
+    self.callbackEvent = _.bind(self.calculateSetpoint,self);
+    
     _.each(self.presenceModes,function(presenceMode) {
         self.controller.on("presence."+presenceMode, self.callbackEvent,"presence");
     });
@@ -285,7 +286,6 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
             dateCalc.setHours(hour,minute);
         }
         results.push(dateCalc);
-        self.log('Next:'+timeString+'-'+dateCalc);
     });
     
     if (results.length === 0) {
@@ -293,6 +293,7 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
     }
         
     results.sort();
+    self.log('Next timeout at '+results[0]);
     return (results[0].getTime() - dateNow.getTime());
 };
 
