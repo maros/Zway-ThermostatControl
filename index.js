@@ -292,7 +292,7 @@ ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
         return;
     }
         
-    results.sort();
+    results.sort(function(a,b) { return a>b ? -1 : a<b ? 1 : 0; });
     self.log('Next timeout at '+results[0]);
     return (results[0].getTime() - dateNow.getTime());
 };
@@ -313,6 +313,7 @@ ThermostatControl.prototype.checkLimit = function(level,limit) {
         && level < min) {
         level = min;
     }
-    return level;
+    
+    return Math.round(level*2)/2;
 };
 
