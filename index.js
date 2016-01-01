@@ -37,6 +37,7 @@ ThermostatControl.prototype.init = function (config) {
         deviceId: "ThermostatControl_Thermostat_" + self.id,
         defaults: {
             metrics: {
+                calculatedLevel: config.defaultTemperature,
                 level: config.defaultTemperature,
                 icon: 'thermostat',
                 title: self.langFile.title
@@ -140,7 +141,8 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var dateNow         = new Date();
     var dayNow          = dateNow.getDay();
     var presenceNow     = self.getPresenceMode();
-    var setpoint        = self.vDevThermostat.get('metrics:level');
+    var curSetpoint     = self.vDevThermostat.get('metrics:level');
+    var calcSetpoint    = self.vDevThermostat.get('metrics:calculatedLevel');
     var globalSetpoint  = self.config.defaultTemperature;
     
     var evalSchedule    = function(schedule) {
@@ -163,7 +165,8 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     };
     
     // Find global schedules & set global setpoint
-    if (source !== 'setpoint') {
+    if (source !== 'setpoint'
+        && ! fromZone) {
         _.find(self.config.globalSchedules,function(schedule) {
             if (evalSchedule(schedule) === false) {
                 self.log('No global match');
@@ -177,14 +180,22 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             globalSetpoint = self.checkLimit(globalSetpoint);
             return true;
         });
+        self.vDevThermostat.set('metrics:calculatedLevel',globalSetpoint);
         // Change setpoint
-        if (setpoint !== globalSetpoint
-            && ! fromZone) {
-            self.log('Changing global to '+globalSetpoint);
-            self.vDevThermostat.set('metrics:level',globalSetpoint);
+        if (curSetpoint !== globalSetpoint) {
+            
+            // Was changed manually - not going to change on restart
+            if (source === 'init'
+                && calcSetpoint !== curSetpoint) {
+                self.log('Not changing manual global setpoint to '+globalSetpoint);
+                globalSetpoint = curSetpoint;
+            } else {
+                self.log('Changing global setpoint to '+globalSetpoint);
+                self.vDevThermostat.set('metrics:level',globalSetpoint);
+            }
         }
     } else {
-        globalSetpoint = setpoint;
+        globalSetpoint = curSetpoint;
     }
     
     // Process zones
