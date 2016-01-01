@@ -17,7 +17,7 @@ function ThermostatControl (id, controller) {
     this.maxTemperature     = undefined;
     this.vDevThermostat     = undefined;
     this.vDevSwitch         = undefined;
-    this.timeouts           = [];
+    this.cronName           = undefined;
 }
 
 inherits(ThermostatControl, BaseModule);
@@ -80,16 +80,30 @@ ThermostatControl.prototype.init = function (config) {
         handler: function(command, args) {
             if (command === 'on' || command === 'off') {
                 this.set('metrics:level',command);
-                self.initTimeouts();
             }
         },
         moduleId: this.id
     });
     
-    self.callbackEvent = _.bind(self.calculateSetpoint,self);
+    self.cronName       = 'ThermostatControl.'+self.id+'.cron';
+    self.callbackEvent  = _.bind(self.calculateSetpoint,self);
     
+    self.controller.on(self.cronName,self.callbackEvent);
+    
+    // Init presence change callbacks
     _.each(self.presenceModes,function(presenceMode) {
         self.controller.on("presence."+presenceMode, self.callbackEvent,"presence");
+    });
+    
+    // Init cron times
+    _.each(self.config.globalSchedules,function(schedule) {
+        self.initSchedule(schedule,'global');
+    });
+    
+    _.each(self.config.zones,function(zone,index) {
+        _.each(zone.schedules,function(schedule) {
+            self.initSchedule(schedule,'zone.'+index);
+        });
     });
     
     setTimeout(self.callbackEvent,10000,'init');
@@ -112,9 +126,8 @@ ThermostatControl.prototype.stop = function() {
         self.controller.off("presence."+presenceMode, self.callbackEvent);
     });
     
-    _.each(self.timeouts,function(timeout) {
-        clearTimeout(timeout);
-    });
+    self.controller.off(self.cronName,self.callbackEvent);
+    self.controller.emit("cron.removeTask",self.cronName);
     
     self.callbackEvent = undefined;
     
@@ -124,6 +137,26 @@ ThermostatControl.prototype.stop = function() {
 // ----------------------------------------------------------------------------
 // --- Module methods
 // ----------------------------------------------------------------------------
+
+ThermostatControl.prototype.initSchedule = function(schedule,id) {
+    var self = this;
+    
+    if (typeof(schedule.timeFrom) === 'undefined'
+        || typeof(schedule.timeTo) === 'undefined')
+        return;
+    
+    _.each(['timeFrom','timeTo'],function(timeString) {
+        var date        = self.parseTime(schedule[timeString]);
+        var dayofweek   = schedule.dayofweek.length === 0 ? null : schedule.dayofweek;
+        self.controller.emit("cron.addTask",self.cronName, {
+            minute:     date.getMinutes(),
+            hour:       date.getHours(),
+            weekDay:    dayofweek,
+            day:        null,
+            month:      null,
+        },id);
+    });
+};
 
 ThermostatControl.prototype.calculateSetpoint = function(source) {
     var self = this;
@@ -222,90 +255,12 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             // Set devices
             self.processDeviceList(zone.devices,function(deviceObject) {
                 self.log('Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
+                deviceObject.set('metrics:calculatedLevel',zoneSetpoint);
                 deviceObject.performCommand('exact',{ level: zoneSetpoint });
             });
         }
     });
     
-    self.initTimeouts();
-};
-
-ThermostatControl.prototype.initTimeouts = function() {
-    var self = this;
-    
-    _.each(self.timeouts,function(timeout) {
-        clearTimeout(timeout);
-    });
-    self.timeouts = [];
-    
-    if (self.vDevSwitch.get('metrics:level') === 'off') {
-        return;
-    }
-    
-    var presence        = self.getPresenceMode();
-    var dateNow         = new Date();
-    
-    _.each(self.config.globalSchedules,function(schedule) {
-        var timeout = self.calculateTimeout(schedule,presence);
-        if (typeof(timeout) !== 'undefined') {
-            self.timeouts.push(setTimeout(self.callbackEvent,timeout,'global'));
-        }
-    });
-    
-    _.each(self.config.zones,function(zone,index) {
-        _.each(zone.schedules,function(schedule) {
-            var timeout = self.calculateTimeout(schedule,presence);
-            if (typeof(timeout) !== 'undefined') {
-                self.timeouts.push(setTimeout(self.callbackEvent,timeout,'zone.'+index));
-            }
-        });
-    });
-};
-
-ThermostatControl.prototype.calculateTimeout = function(setpoint,presenceMode) {
-    var self = this;
-    
-    var dateNow     = new Date();
-    var dayofweek   = setpoint.dayofweek;
-    var timeFrom    = setpoint.timeFrom;
-    var timeTo      = setpoint.timeTo;
-    var modes       = setpoint.presenceMode;
-    var results     = [];
-    
-    if (typeof(timeFrom) === 'undefined'
-        && typeof(timeTo) === 'undefined') {
-        return;
-    }
-    
-    if (typeof(modes) === 'object'
-        && modes.length > 0
-        && _.indexOf(modes, presenceMode) !== -1) {
-        return;
-    }
-    
-    _.each([timeFrom,timeTo],function(timeString) {
-        var dateCalc = self.parseTime(timeString);
-        while (dateCalc < dateNow 
-            || (
-                typeof(dayofweek) === 'object'
-                && dayofweek.length > 0 
-                && _.indexOf(dayofweek, dateCalc.getDay().toString()) === -1
-            )) {
-            var hour = dateCalc.getHours();
-            var minute = dateCalc.getMinutes();
-            dateCalc.setHours(hour + 24);
-            dateCalc.setHours(hour,minute);
-        }
-        results.push(dateCalc);
-    });
-    
-    if (results.length === 0) {
-        return;
-    }
-        
-    results.sort(function(a,b) { return a>b ? -1 : a<b ? 1 : 0; });
-    self.log('Next timeout at '+results[0]);
-    return (results[0].getTime() - dateNow.getTime());
 };
 
 ThermostatControl.prototype.checkLimit = function(level,limit) {
