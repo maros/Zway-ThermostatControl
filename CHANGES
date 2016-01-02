@@ -1,3 +1,19 @@
+1.04 2016 Jan 02, Sat
+    * Cleanup min/max temp
+    * Use cron instead of timeouts to handle time schedules
+    * Remember calculated setpoint. Do not re-calculate manual setpoints on init
+    * Update documentation
+    * Round to 0.5 degrees
+    * Fix init
+    * Fix module.json for 2.2.0
+    * Use methods from BaseModule
+    * Do not calculate global setpoint on manual change
+    * Use BaseModule
+    * cleanup jshint issues
+    * Set probeType, Move variable elements to overlay instead of defaults
+    * Improve parsing and processing of time settings
+    * Unify variable names
+
 1.03 2015 Nov 15, Sun
     * Fix presence device detection
     * Update documentation

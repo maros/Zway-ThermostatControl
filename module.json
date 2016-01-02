@@ -110,29 +110,29 @@
          },
          "zones" : {
             "items" : {
-               "fields": {
-                   "devices" : {
-                      "fields" : {
-                         "item" : {
-                            "datasource" : "namespaces",
-                            "field" : "devices",
-                            "label" : "__devices_label__",
-                            "optionLabels" : "namespaces:devices_thermostat:deviceName",
-                            "type" : "select"
-                         }
-                      },
-                      "label" : "__devices_label__",
-                      "order" : 1
-                   },
-                   "limit" : {
-                      "$ref" : "#/definitions/limit"
-                   },
-                   "schedules" : {
-                      "$ref" : "#/definitions/schedules",
-                      "label" : "__zone_schedules_label__",
-                      "order" : 2
-                   }
-                }
+               "fields" : {
+                  "devices" : {
+                     "fields" : {
+                        "item" : {
+                           "datasource" : "namespaces",
+                           "field" : "devices",
+                           "label" : "__devices_label__",
+                           "optionLabels" : "namespaces:devices_thermostat:deviceName",
+                           "type" : "select"
+                        }
+                     },
+                     "label" : "__devices_label__",
+                     "order" : 1
+                  },
+                  "limit" : {
+                     "$ref" : "#/definitions/limit"
+                  },
+                  "schedules" : {
+                     "$ref" : "#/definitions/schedules",
+                     "label" : "__zone_schedules_label__",
+                     "order" : 2
+                  }
+               }
             },
             "label" : "__zones_label__",
             "order" : 5
@@ -160,6 +160,10 @@
             "items" : {
                "properties" : {
                   "dayofweek" : {
+                     "dependencies" : [
+                        "timeFrom",
+                        "timeTo"
+                     ],
                      "enum" : [
                         "0",
                         "1",
@@ -169,8 +173,7 @@
                         "5",
                         "6"
                      ],
-                     "type" : "array",
-                     "dependencies": ["timeFrom","timeTo"]
+                     "type" : "array"
                   },
                   "mode" : {
                      "default" : "absolute",
@@ -199,10 +202,12 @@
                      "type" : "string"
                   },
                   "timeTo" : {
+                     "dependencies" : [
+                        "timeFrom"
+                     ],
                      "pattern" : "^([01]?[0-9]|2[0-3]):([0-5][0-9])$",
                      "placeholder" : "__time_placeholder__",
-                     "type" : "string",
-                     "dependencies": ["timeFrom"]
+                     "type" : "string"
                   }
                },
                "type" : "object"
@@ -256,5 +261,5 @@
       "type" : "object"
    },
    "singleton" : false,
-   "version" : "1.03"
+   "version" : 1.04
 }
