@@ -32,6 +32,11 @@ ThermostatControl.prototype.init = function (config) {
     ThermostatControl.super_.prototype.init.call(this, config);
     var self = this;
     
+    self.minTemperature = parseFloat(config.globalLimit.minTemperature) 
+        || config.unitTemperature === 'celsius' ? 10 : 50;
+    self.maxTemperature = parseFloat(config.globalLimit.maxTemperature) 
+        || config.unitTemperature === 'celsius' ? 35 : 95;
+    
     // Create vdev thermostat
     self.vDevThermostat = self.controller.devices.create({
         deviceId: "ThermostatControl_Thermostat_" + self.id,
@@ -45,8 +50,8 @@ ThermostatControl.prototype.init = function (config) {
         },
         overlay: {
             metrics: {
-                min: parseFloat(config.globalLimit.minTemperature),
-                max: parseFloat(config.globalLimit.maxTemperature),
+                min: self.minTemperature,
+                max: self.maxTemperature,
                 scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F'
             },
             probeType: 'ThermostatController',
@@ -269,8 +274,8 @@ ThermostatControl.prototype.checkLimit = function(level,limit) {
     
     // TODO fallback limits?
     limit   = limit || {};
-    var max = limit.maxTemperature || self.config.globalLimit.maxTemperature;
-    var min = limit.minTemperature || self.config.globalLimit.minTemperature;
+    var max = limit.maxTemperature || self.maxTemperature;
+    var min = limit.minTemperature || self.minTemperature;
     
     if (typeof(max) === 'number'
         && level > max) {
