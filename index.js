@@ -45,7 +45,7 @@ ThermostatControl.prototype.init = function (config) {
                 calculatedLevel: config.defaultTemperature,
                 level: config.defaultTemperature,
                 icon: 'thermostat',
-                title: self.langFile.title
+                title: self.langFile.m_title
             },
         },
         overlay: {
@@ -75,7 +75,7 @@ ThermostatControl.prototype.init = function (config) {
             metrics: {
                 level: 'on',
                 icon: 'thermostat',
-                title: self.langFile.title
+                title: self.langFile.m_title
             },
         },
         overlay: {

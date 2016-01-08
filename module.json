@@ -2,8 +2,8 @@
    "author" : "Maroš Kollár",
    "category" : "complex_applications",
    "defaults" : {
-      "description" : "__description__",
-      "title" : "__title__",
+      "description" : "__m_descr__",
+      "title" : "__m_title__",
       "unitTemperature" : "celsius"
    },
    "dependencies" : [
