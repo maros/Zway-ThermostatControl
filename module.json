@@ -7,6 +7,7 @@
       "unitTemperature" : "celsius"
    },
    "dependencies" : [
+      "Cron",
       "Presence",
       "BaseModule"
    ],
