@@ -13,7 +13,7 @@
    "global_schedules_helper" : "Global schedule for all zones. May be overridden via zone schedules.",
    "global_schedules_label" : "Global schedule",
    "label_limit" : "Temperature Limit",
-   "m_descr" : "This module can manage complex heating schedules with multiple zones based on time of day, day of week and presence modes.<br>Check  <a href=\"https://github.com/maros/Zway-ThermostatControl/blob/master/README.md\">github.com/maros/Zway-ThermostatControl</a> for detailed documentation.",
+   "m_descr" : "This module can manage complex heating schedules with multiple zones based on time of day, day of week and presence modes.<br>Check <a href=https://github.com/maros/Zway-ThermostatControl/blob/master/README.md>github.com/maros/Zway-ThermostatControl</a> for detailed documentation.",
    "m_title" : "Thermostat Controller",
    "max_temperature_label" : "Max setpoint",
    "min_temperature_label" : "Min setpoint",
