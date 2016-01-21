@@ -13,7 +13,7 @@
    "global_schedules_helper" : "Globaler Heizplan für alle Zonen. Kann von Zonen Heizplänen übersteuert werden.",
    "global_schedules_label" : "Globale Heizpläne",
    "label_limit" : "Sollwert Limit",
-   "m_descr" : "Dieses Modul kann komplexe Heizpläne für mehrere Zonen, abhängig von der Uhrzeit, dem Wochentag und des Anwesenheitsmodus steuern.\nSiehe https://github.com/maros/Zway-ThermostatControl//blob/master/README.md für detailliertere Dokumentation.",
+   "m_descr" : "Dieses Modul kann komplexe Heizpläne für mehrere Zonen, abhängig von der Uhrzeit, dem Wochentag und des Anwesenheitsmodus steuern.<br>Siehe  <a href=\"https://github.com/maros/Zway-ThermostatControl/blob/master/README.md\">github.com/maros/Zway-ThermostatControl</a> für detailliertere Dokumentation.",
    "m_title" : "Thermostat Steuerung",
    "max_temperature_label" : "Max Sollwert",
    "min_temperature_label" : "Min Sollwert",
