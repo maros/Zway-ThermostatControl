@@ -54,7 +54,7 @@ ThermostatControl.prototype.init = function (config) {
                 max: self.maxTemperature,
                 scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F'
             },
-            probeType: 'ThermostatController',
+            probeType: 'thermostat_set_point',
             deviceType: 'thermostat'
         },
         handler: function(command, args) {
@@ -80,7 +80,7 @@ ThermostatControl.prototype.init = function (config) {
         },
         overlay: {
             deviceType: 'switchBinary',
-            probeType: 'ThermostatController'
+            probeType: 'thermostat_mode'
         },
         handler: function(command, args) {
             if (command === 'on' || command === 'off') {
