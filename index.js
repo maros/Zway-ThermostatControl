@@ -83,8 +83,12 @@ ThermostatControl.prototype.init = function (config) {
             probeType: 'thermostat_mode'
         },
         handler: function(command, args) {
+            var oldLevel = this.get('metrics:level');
             if (command === 'on' || command === 'off') {
                 this.set('metrics:level',command);
+                if (oldLevel !== command && command === 'on') {
+                    self.calculateSetpoint('setpoint');
+                }
             }
         },
         moduleId: this.id
