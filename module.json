@@ -73,20 +73,20 @@
                      "required" : true
                   },
                   "timeFrom" : {
+                     "dateFormat" : "HH:mm",
                      "label" : "__time_from_label__",
+                     "maskString" : "99:99",
                      "order" : 3,
                      "placeholder" : "__time_placeholder__",
-                     "type": "time",
-                     "dateFormat": "HH:mm",
-                     "maskString": "99:99"
+                     "type" : "time"
                   },
                   "timeTo" : {
+                     "dateFormat" : "HH:mm",
                      "label" : "__time_to_label__",
+                     "maskString" : "99:99",
                      "order" : 4,
                      "placeholder" : "__time_placeholder__",
-                     "type": "time",
-                     "dateFormat": "HH:mm",
-                     "maskString": "99:99"
+                     "type" : "time"
                   }
                }
             },
@@ -206,14 +206,14 @@
                      "type" : "number"
                   },
                   "timeFrom" : {
-                      "format":"time",
-                      "type" : "string"
+                     "format" : "time",
+                     "type" : "string"
                   },
                   "timeTo" : {
                      "dependencies" : [
                         "timeFrom"
                      ],
-                     "format":"time",
+                     "format" : "time",
                      "type" : "string"
                   }
                },
@@ -268,5 +268,5 @@
       "type" : "object"
    },
    "singleton" : false,
-   "version" : 1.05
+   "version" : 1.06
 }

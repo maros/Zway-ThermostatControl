@@ -1,3 +1,12 @@
+1.06 2016 Apr 21, Thu
+    * Use dateFormat/mask/placeholder and correct type for time fields
+    * Calculate setpoint on controller on
+    * Set probeType
+    * Update installation howto
+    * Add doc link
+    * Improve en translation
+    * German translation
+
 1.05 2016 Jan 18, Mon
     * Declare cron dependency
     * Rename title/description key to make module work in appstore
