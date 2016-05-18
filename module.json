@@ -4,7 +4,8 @@
    "defaults" : {
       "description" : "__m_descr__",
       "title" : "__m_title__",
-      "unitTemperature" : "celsius"
+      "unitTemperature" : "celsius",
+      "schedules": []
    },
    "dependencies" : [
       "Cron",
