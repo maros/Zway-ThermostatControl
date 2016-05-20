@@ -2,7 +2,7 @@
    "dayofweek_0" : "Sunday",
    "dayofweek_1" : "Monday",
    "dayofweek_2" : "Tuesday",
-   "dayofweek_3" : "Wendsday",
+   "dayofweek_3" : "Wednesday",
    "dayofweek_4" : "Thursday",
    "dayofweek_5" : "Friday",
    "dayofweek_6" : "Saturday",
@@ -31,7 +31,7 @@
    "time_from_label" : "From",
    "time_placeholder" : "HH:MM",
    "time_to_label" : "To",
-   "unit_temperature_label" : "Temperature Unit",
-   "zone_schedules_label" : "Zone Schedules",
+   "unit_temperature_label" : "Temperature unit",
+   "zone_schedules_label" : "Zone schedules",
    "zones_label" : "Zone"
 }
