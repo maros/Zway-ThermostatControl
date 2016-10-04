@@ -12,7 +12,7 @@ Description:
 function ThermostatControl (id, controller) {
     // Call superconstructor first (AutomationModule)
     ThermostatControl.super_.call(this, id, controller);
-    
+
     this.minTemperature     = undefined;
     this.maxTemperature     = undefined;
     this.vDevThermostat     = undefined;
@@ -31,12 +31,12 @@ _module = ThermostatControl;
 ThermostatControl.prototype.init = function (config) {
     ThermostatControl.super_.prototype.init.call(this, config);
     var self = this;
-    
-    self.minTemperature = parseFloat(config.globalLimit.minTemperature) 
+
+    self.minTemperature = parseFloat(config.globalLimit.minTemperature)
         || config.unitTemperature === 'celsius' ? 10 : 50;
-    self.maxTemperature = parseFloat(config.globalLimit.maxTemperature) 
+    self.maxTemperature = parseFloat(config.globalLimit.maxTemperature)
         || config.unitTemperature === 'celsius' ? 35 : 95;
-    
+
     // Create vdev thermostat
     self.vDevThermostat = self.controller.devices.create({
         deviceId: "ThermostatControl_Thermostat_" + self.id,
@@ -67,7 +67,7 @@ ThermostatControl.prototype.init = function (config) {
         },
         moduleId: this.id
     });
-    
+
     // Create vdev switch
     self.vDevSwitch = self.controller.devices.create({
         deviceId: "ThermostatControl_Switch_" + self.id,
@@ -93,53 +93,53 @@ ThermostatControl.prototype.init = function (config) {
         },
         moduleId: this.id
     });
-    
+
     self.cronName       = 'ThermostatControl.'+self.id+'.cron';
     self.callbackEvent  = _.bind(self.calculateSetpoint,self);
-    
+
     self.controller.on(self.cronName,self.callbackEvent);
-    
+
     // Init presence change callbacks
     _.each(self.presenceModes,function(presenceMode) {
         self.controller.on("presence."+presenceMode, self.callbackEvent,"presence");
     });
-    
+
     // Init cron times
     _.each(self.config.globalSchedules,function(schedule) {
         self.initSchedule(schedule,'global');
     });
-    
+
     _.each(self.config.zones,function(zone,index) {
         _.each(zone.schedules,function(schedule) {
             self.initSchedule(schedule,'zone.'+index);
         });
     });
-    
+
     setTimeout(self.callbackEvent,10000,'init');
 };
 
 ThermostatControl.prototype.stop = function() {
     var self = this;
-    
+
     if (self.vDevThermostat) {
         self.controller.devices.remove(self.vDevThermostat.id);
         self.vDevThermostat = undefined;
     }
-    
+
     if (self.vDevSwitch) {
         self.controller.devices.remove(self.vDevSwitch.id);
         self.vDevSwitch = undefined;
     }
-    
+
     _.each(self.presenceModes,function(presenceMode) {
         self.controller.off("presence."+presenceMode, self.callbackEvent);
     });
-    
+
     self.controller.off(self.cronName,self.callbackEvent);
     self.controller.emit("cron.removeTask",self.cronName);
-    
+
     self.callbackEvent = undefined;
-    
+
     ThermostatControl.super_.prototype.stop.call(this);
 };
 
@@ -149,11 +149,11 @@ ThermostatControl.prototype.stop = function() {
 
 ThermostatControl.prototype.initSchedule = function(schedule,id) {
     var self = this;
-    
+
     if (typeof(schedule.timeFrom) === 'undefined'
         || typeof(schedule.timeTo) === 'undefined')
         return;
-    
+
     _.each(['timeFrom','timeTo'],function(timeString) {
         var date        = self.parseTime(schedule[timeString]);
         var dayofweek   = schedule.dayofweek.length === 0 ? null : schedule.dayofweek;
@@ -169,16 +169,16 @@ ThermostatControl.prototype.initSchedule = function(schedule,id) {
 
 ThermostatControl.prototype.calculateSetpoint = function(source) {
     var self = this;
-    
+
     if (self.vDevSwitch.get('metrics:level') === 'off') {
         self.log('Skipping setpoint calculation');
         return;
     }
-    
+
     source = source || 'unknown';
     source = source.toString();
     self.log('Calculating setpoints due to '+source);
-    
+
     var fromZone        = source.match(/^zone\.[0-9]+$/);
     var dateNow         = new Date();
     var dayNow          = dateNow.getDay();
@@ -186,26 +186,26 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     var curSetpoint     = self.vDevThermostat.get('metrics:level');
     var calcSetpoint    = self.vDevThermostat.get('metrics:calculatedLevel');
     var globalSetpoint  = self.config.defaultTemperature;
-    
+
     var evalSchedule    = function(schedule) {
         // Check presence mode
-        if (typeof(schedule.presenceMode) === 'object' 
+        if (typeof(schedule.presenceMode) === 'object'
             && schedule.presenceMode.length > 0
             && _.indexOf(schedule.presenceMode, presenceNow) === -1) {
             return false;
         }
-        
+
         // Check day of week if set
-        if (typeof(schedule.dayofweek) === 'object' 
+        if (typeof(schedule.dayofweek) === 'object'
             && schedule.dayofweek.length > 0
             && _.indexOf(schedule.dayofweek, dayNow.toString()) === -1) {
             return false;
         }
-        
+
         // Check from/to time
         return self.checkPeriod(schedule.timeFrom,schedule.timeTo);
     };
-    
+
     // Find global schedules & set global setpoint
     if (source !== 'setpoint'
         && ! fromZone) {
@@ -225,7 +225,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
         self.vDevThermostat.set('metrics:calculatedLevel',globalSetpoint);
         // Change setpoint
         if (curSetpoint !== globalSetpoint) {
-            
+
             // Was changed manually - not going to change on restart
             if (source === 'init'
                 && calcSetpoint !== curSetpoint) {
@@ -239,12 +239,12 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     } else {
         globalSetpoint = curSetpoint;
     }
-    
+
     // Process zones
     _.each(self.config.zones,function(zone,index) {
         var zoneSetpoint = globalSetpoint;
-        
-        if (source === 'zone.'+index 
+
+        if (source === 'zone.'+index
             || ! fromZone) {
             // Find zone schedules
             _.find(zone.schedules,function(schedule) {
@@ -260,7 +260,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             });
             zoneSetpoint = self.checkLimit(zoneSetpoint,zone.limit);
             self.log('Changing zone '+index+' to '+zoneSetpoint);
-            
+
             // Set devices
             self.processDeviceList(zone.devices,function(deviceObject) {
                 self.log('Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
@@ -269,18 +269,18 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             });
         }
     });
-    
+
 };
 
 ThermostatControl.prototype.checkLimit = function(level,limit) {
     var self = this;
     level = parseFloat(level);
-    
+
     // TODO fallback limits?
     limit   = limit || {};
     var max = limit.maxTemperature || self.maxTemperature;
     var min = limit.minTemperature || self.minTemperature;
-    
+
     if (typeof(max) === 'number'
         && level > max) {
         level = max;
@@ -288,7 +288,7 @@ ThermostatControl.prototype.checkLimit = function(level,limit) {
         && level < min) {
         level = min;
     }
-    
+
     return Math.round(level*2)/2;
 };
 
