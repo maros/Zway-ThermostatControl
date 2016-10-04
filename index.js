@@ -157,13 +157,26 @@ ThermostatControl.prototype.initSchedule = function(schedule,id) {
     _.each(['timeFrom','timeTo'],function(timeString) {
         var date        = self.parseTime(schedule[timeString]);
         var dayofweek   = schedule.dayofweek.length === 0 ? null : schedule.dayofweek;
-        self.controller.emit("cron.addTask",self.cronName, {
-            minute:     date.getMinutes(),
-            hour:       date.getHours(),
-            weekDay:    dayofweek,
-            day:        null,
-            month:      null,
-        },id);
+        if (time.dayofweek.length === 0
+            || time.dayofweek.length === 7) {
+            self.controller.emit("cron.addTask",self.cronName, {
+                minute:     date.getMinutes(),
+                hour:       date.getHours(),
+                weekDay:    null,
+                day:        null,
+                month:      null,
+            },id);
+        } else {
+            _.each(time.dayofweek,function(dayofweek) {
+                self.controller.emit("cron.addTask",self.cronName, {
+                    minute:     date.getMinutes(),
+                    hour:       date.getHours(),
+                    weekDay:    parseInt(dayofweek,10),
+                    day:        null,
+                    month:      null,
+                },id);
+            });
+        }
     });
 };
 
