@@ -157,9 +157,8 @@ ThermostatControl.prototype.initSchedule = function(schedule,id) {
 
     _.each(['timeFrom','timeTo'],function(timeString) {
         var date        = self.parseTime(schedule[timeString]);
-        var dayofweek   = schedule.dayofweek.length === 0 ? null : schedule.dayofweek;
-        if (time.dayofweek.length === 0
-            || time.dayofweek.length === 7) {
+        if (schedule.dayofweek.length === 0
+            || schedule.dayofweek.length === 7) {
             self.controller.emit("cron.addTask",self.cronName, {
                 minute:     date.getMinutes(),
                 hour:       date.getHours(),
@@ -168,7 +167,7 @@ ThermostatControl.prototype.initSchedule = function(schedule,id) {
                 month:      null,
             },id);
         } else {
-            _.each(time.dayofweek,function(dayofweek) {
+            _.each(schedule.dayofweek,function(dayofweek) {
                 self.controller.emit("cron.addTask",self.cronName, {
                     minute:     date.getMinutes(),
                     hour:       date.getHours(),
