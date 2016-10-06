@@ -1,3 +1,10 @@
+1.07 2016 Oct 06, Thu
+    * Fix day of week scheduling
+    * Correctly set min/max temp and step for thermostat
+    * Update icon
+    * Improve texts
+    * Set defaults
+
 1.06 2016 Apr 21, Thu
     * Use dateFormat/mask/placeholder and correct type for time fields
     * Calculate setpoint on controller on

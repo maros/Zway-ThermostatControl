@@ -3,9 +3,9 @@
    "category" : "complex_applications",
    "defaults" : {
       "description" : "__m_descr__",
+      "schedules" : [],
       "title" : "__m_title__",
-      "unitTemperature" : "celsius",
-      "schedules": []
+      "unitTemperature" : "celsius"
    },
    "dependencies" : [
       "Cron",
@@ -269,5 +269,5 @@
       "type" : "object"
    },
    "singleton" : false,
-   "version" : 1.06
+   "version" : "1.07"
 }
