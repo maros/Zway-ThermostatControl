@@ -33,9 +33,9 @@ ThermostatControl.prototype.init = function (config) {
     var self = this;
 
     self.minTemperature = parseFloat(config.globalLimit.minTemperature)
-        || config.unitTemperature === 'celsius' ? 10 : 50;
+        || (config.unitTemperature === 'celsius' ? 10 : 50);
     self.maxTemperature = parseFloat(config.globalLimit.maxTemperature)
-        || config.unitTemperature === 'celsius' ? 35 : 95;
+        || (config.unitTemperature === 'celsius' ? 30 : 85);
 
     // Create vdev thermostat
     self.vDevThermostat = self.controller.devices.create({
@@ -52,6 +52,7 @@ ThermostatControl.prototype.init = function (config) {
             metrics: {
                 min: self.minTemperature,
                 max: self.maxTemperature,
+                step: self.config.unitTemperature === 'celsius' ? 0.5 : 1,
                 scaleTitle: config.unitTemperature === "celsius" ? '°C' : '°F'
             },
             probeType: 'thermostat_set_point',
