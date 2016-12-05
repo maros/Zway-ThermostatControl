@@ -7,16 +7,16 @@ of the calculated setpoints. It also creates a binary switch that allows
 to entirely disable the thermostat (eg. for summer or for manual overrides)
 
 Multiple radiator valves or thermostats may be grouped in a zone. These zones
-may have additional schedules that either override (absolute setpoints) or 
+may have additional schedules that either override (absolute setpoints) or
 augment the global schedules (relative setpoints)
 
 # Configuration
 
-This module requires the Presence module 
+This module requires the Presence module
 (see https://github.com/maros/Zway-Presence), or any other module that behaves
-the same to be installed first. If you don't want to use the given presence 
-module, just must create a virtual switchBinary device, using 'Presence' as a 
-probeTitle and use 'metrics:mode' to store the presence mode. The module 
+the same to be installed first. If you don't want to use the given presence
+module, just must create a virtual switchBinary device, using 'Presence' as a
+probeTitle and use 'metrics:mode' to store the presence mode. The module
 should also emit events on switching modes (see Events)
 
 ## unitTemperature
@@ -25,7 +25,7 @@ Handle temperatures in Celsius or Fahrenheit
 
 ## defaultTemperature
 
-Fallback default temperature. If no specific schedule is found, this 
+Fallback default temperature. If no specific schedule is found, this
 temperature will be used.
 
 ## globalLimit.maxTemperature, globalLimit.minTemperature
@@ -35,9 +35,9 @@ and each controlled thermostat.
 
 ## globalSchedules
 
-A list of global schedules. A schedule may apply to one or multiple presence 
-modes, days of the week and have a starting and end time. Every schedule has 
-a setpoint. If schedule rules overlap, only the first matching schedule will 
+A list of global schedules. A schedule may apply to one or multiple presence
+modes, days of the week and have a starting and end time. Every schedule has
+a setpoint. If schedule rules overlap, only the first matching schedule will
 be processed. The order of schedules therefore matters.
 
 ## globalSchedules.presenceMode
@@ -62,11 +62,11 @@ Allows to specify a time (in HH:MM) when the schedule should be active.
 
 ## globalSchedules.mode, globalSchedules.setpoint
 
-Based on the mode, a setpoint can be either absolute (eg. 19°C) or relative 
-(eg. -1°C). Relative setpoints augment the defaultTemperature (and global 
+Based on the mode, a setpoint can be either absolute (eg. 19°C) or relative
+(eg. -1°C). Relative setpoints augment the defaultTemperature (and global
 setpoint for zone schedules).
 
-eg. if the global setpoint is 20°C, and the relative zone setpoint is -2°C, 
+eg. if the global setpoint is 20°C, and the relative zone setpoint is -2°C,
 then all radiator valves in the given zone will be set to 18°C.
 
 In order to allow for manual thermostat overrides it is advisable to
@@ -75,8 +75,8 @@ zone schedules.
 
 ## zones
 
-Specify multiple temperature zones. Each zone may have additional schedules 
-that either override (absolute setpoints), or augment (relative setpoints) 
+Specify multiple temperature zones. Each zone may have additional schedules
+that either override (absolute setpoints), or augment (relative setpoints)
 the global schedules.
 
 ## zones.limit.maxTemperature, zones.limit.minTemperature
@@ -95,8 +95,8 @@ for documentation.
 
 # Virtual Devices
 
-This module creates a virtual thermostat which lets you manually override the 
-global setpoint. The manual override will end once the next global schedule 
+This module creates a virtual thermostat which lets you manually override the
+global setpoint. The manual override will end once the next global schedule
 change occurs.
 
 A binary switch will also be created, allowing for disabling automated
@@ -107,7 +107,7 @@ thermostat setpoints. (eg. for summer or for manual overrides)
 No events are emitted.
 
 The module listens to the following events, which are usually emitted by
-the Presence module ( https://github.com/maros/Zway-Presence ), but may 
+the Presence module ( https://github.com/maros/Zway-Presence ), but may
 originate from any other module.
 
 * presence.home
@@ -120,11 +120,11 @@ originate from any other module.
 Install the BaseModule from https://github.com/maros/Zway-BaseModule first
 
 The prefered way of installing this module is via the "Zwave.me App Store"
-available in 2.2.0 and higher. For stable module releases no access token is 
-required. If you want to test the latest pre-releases use 'k1_beta' as 
+available in 2.2.0 and higher. For stable module releases no access token is
+required. If you want to test the latest pre-releases use 'k1_beta' as
 app store access token.
 
-For developers and users of older Zway versions installation via git is 
+For developers and users of older Zway versions installation via git is
 recommended.
 
 ```shell
@@ -150,7 +150,7 @@ Thermometer icon by Dianne Kathleen Navarro from the Noun Project
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or any 
+the Free Software Foundation, either version 3 of the License, or any
 later version.
 
 This program is distributed in the hope that it will be useful,
