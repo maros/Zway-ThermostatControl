@@ -43,7 +43,7 @@
                         "__dayofweek_5__",
                         "__dayofweek_6__"
                      ],
-                     "order" : 2,
+                     "order" : 4,
                      "type" : "checkbox"
                   },
                   "mode" : {
@@ -77,7 +77,7 @@
                      "dateFormat" : "HH:mm",
                      "label" : "__time_from_label__",
                      "maskString" : "99:99",
-                     "order" : 3,
+                     "order" : 2,
                      "placeholder" : "__time_placeholder__",
                      "type" : "time"
                   },
@@ -85,7 +85,7 @@
                      "dateFormat" : "HH:mm",
                      "label" : "__time_to_label__",
                      "maskString" : "99:99",
-                     "order" : 4,
+                     "order" : 3,
                      "placeholder" : "__time_placeholder__",
                      "type" : "time"
                   }
