@@ -6,7 +6,7 @@ module will create a virtual thermostat device that allows manual overriding
 of the calculated setpoints. It also creates a binary switch that allows
 to entirely disable the thermostat (eg. for summer or for manual overrides)
 
-Multiple radiator valves or thermostats may be grouped in a zone. These zones
+Multiple radiator valves or thermostats may be grouped in zones. These zones
 may have additional schedules that either override (absolute setpoints) or
 augment the global schedules (relative setpoints)
 
@@ -48,21 +48,22 @@ away modes. Supported presence modes are
 
 * Home: At home during daytime
 * Night: At Home during nighttime / Sleeping
-* Away: Away - both day and night)
+* Away: Away - both day and night
 * Vacation: Prolonged absence - both day and night
-
-## globalSchedules.dayofweek
-
-Days of the week that this schedule applies to. ie. allows to to specify
-higher temperatures for the weekend.
 
 ## globalSchedules.timeFrom, globalSchedules.timeTo
 
 Allows to specify a time (in HH:MM) when the schedule should be active.
 
+## globalSchedules.dayofweek
+
+Days of the week that this schedule applies to. ie. allows to to specify
+higher temperatures for the weekend. Only works when timeFrom and
+timeTo schedules are also set.
+
 ## globalSchedules.mode, globalSchedules.setpoint
 
-Based on the mode, a setpoint can be either absolute (eg. 19°C) or relative
+Based on the mode, a setpoint can be either "absolute" (eg. 19°C) or "relative"
 (eg. -1°C). Relative setpoints augment the defaultTemperature (and global
 setpoint for zone schedules).
 
@@ -75,9 +76,11 @@ zone schedules.
 
 ## zones
 
-Specify multiple temperature zones. Each zone may have additional schedules
-that either override (absolute setpoints), or augment (relative setpoints)
-the global schedules.
+Specify multiple temperature zones (ie rooms). Each zone may have additional
+schedules that either override (absolute setpoints), or augment (relative setpoints)
+the global schedules. Relative setpoints are preferred for zone schedules.
+
+You need to configure at least one zone.
 
 ## zones.limit.maxTemperature, zones.limit.minTemperature
 
@@ -86,11 +89,11 @@ globalLimit.maxTemperature and globalLimit.minTemperature will be used.
 
 ## devices
 
-List of thermostats that are managed in this zone.
+List of thermostats that are managed by this zone.
 
 ## zones.schedules
 
-Multiple schedules that override the global schedules. See globalSchedules
+Multiple zone schedules that override the global schedules. See globalSchedules
 for documentation.
 
 # Virtual Devices
