@@ -87,7 +87,7 @@ You need to configure at least one zone.
 Every zone may have its own upper and lower bounds. If no values are set,
 globalLimit.maxTemperature and globalLimit.minTemperature will be used.
 
-## devices
+## zones.devices
 
 List of thermostats that are managed by this zone.
 
