@@ -102,7 +102,7 @@ ThermostatControl.prototype.init = function (config) {
 
     // Init presence change callbacks
     _.each(self.presenceModes,function(presenceMode) {
-        self.controller.on("presence."+presenceMode, self.callbackEvent,"presence");
+        self.controller.on("presence."+presenceMode, self.callbackEvent);
     });
 
     // Init cron times
@@ -189,6 +189,10 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     }
 
     source = source || 'unknown';
+    if (typeof(source) === 'object'
+        && typeof(source.hour) !== 'undefined') {
+        source = 'Cron ' + source.hour + ':' + source.minute;
+    }
     source = source.toString();
     self.log('Calculating setpoints due to '+source);
 
