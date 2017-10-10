@@ -4,7 +4,8 @@ Control multiple radiator valves or thermostats using a virtual thermostat
 using advanced schedules based on presence modes, time and day of week. The
 module will create a virtual thermostat device that allows manual overriding
 of the calculated setpoints. It also creates a binary switch that allows
-to entirely disable the thermostat (eg. for summer or for manual overrides)
+to entirely disable automated thermostat control (eg. for summer or for 
+manual overrides)
 
 Multiple radiator valves or thermostats may be grouped in zones. These zones
 may have additional schedules that either override (absolute setpoints) or
@@ -59,7 +60,8 @@ Allows to specify a time (in HH:MM) when the schedule should be active.
 
 Days of the week that this schedule applies to. ie. allows to to specify
 higher temperatures for the weekend. Only works when timeFrom and
-timeTo schedules are also set.
+timeTo schedules are also set. If this option is not set then the schedule 
+applies to all week days.
 
 ## globalSchedules.mode, globalSchedules.setpoint
 
@@ -68,7 +70,9 @@ Based on the mode, a setpoint can be either "absolute" (eg. 19°C) or "relative"
 setpoint for zone schedules).
 
 eg. if the global setpoint is 20°C, and the relative zone setpoint is -2°C,
-then all radiator valves in the given zone will be set to 18°C.
+then all radiator valves in the given zone will be set to 18°C. When using relative
+setpoints it is important to know that the calculated temperature cannot fall below
+the minTemperature or rise above the maxTemperature settings.
 
 In order to allow for manual thermostat overrides it is advisable to
 use absolute setpoints for global schedules, and relative setpoints for
@@ -94,7 +98,7 @@ List of thermostats that are managed by this zone.
 ## zones.schedules
 
 Multiple zone schedules that override the global schedules. See globalSchedules
-for documentation.
+for documentation. If no zone schedules are present the global schedules apply.
 
 # Virtual Devices
 
