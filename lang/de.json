@@ -12,6 +12,8 @@
    "devices_label" : "Thermostate",
    "global_schedules_helper" : "Globaler Heizplan für alle Zonen. Kann von Zonen Heizplänen übersteuert werden.",
    "global_schedules_label" : "Globale Heizpläne",
+   "gradual_change_duration_helper" : "Dieser Wert steuert die Dauer der stufenweisen Temparaturänderung in Minuten pro 0,5°. Je größer desto langsamer geschieht das Aufheizen.",
+   "gradual_change_duration_label" : "Stufenweise Änderungsdauer (in Minuten pro 0,5°)",
    "label_limit" : "Sollwert Limit",
    "m_descr" : "Dieses Modul kann komplexe Heizpläne für mehrere Zonen, abhängig von der Uhrzeit, dem Wochentag und des Anwesenheitsmodus steuern.<br>Siehe <a href=https://github.com/maros/Zway-ThermostatControl/blob/master/README.md>github.com/maros/Zway-ThermostatControl</a> für detailliertere Dokumentation.",
    "m_title" : "Thermostat Steuerung",

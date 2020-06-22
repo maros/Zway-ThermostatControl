@@ -95,6 +95,11 @@
          }
       },
       "fields" : {
+         "gradualChangeDuration": {
+            "label" : "__gradual_change_duration_label__",
+            "helper" : "__gradual_change_duration_helper__",
+            "order" : 3
+         },
          "defaultTemperature" : {
             "helper" : "__default_temperature_helper__",
             "label" : "__default_temperature_label__",
@@ -102,13 +107,13 @@
          },
          "globalLimit" : {
             "$ref" : "#/definitions/limit",
-            "order" : 3
+            "order" : 4
          },
          "globalSchedules" : {
             "$ref" : "#/definitions/schedules",
             "helper" : "__global_schedules_helper__",
             "label" : "__global_schedules_label__",
-            "order" : 4
+            "order" : 5
          },
          "unitTemperature" : {
             "label" : "__unit_temperature_label__",
@@ -145,7 +150,7 @@
                }
             },
             "label" : "__zones_label__",
-            "order" : 5
+            "order" : 6
          }
       }
    },
@@ -228,7 +233,10 @@
             "required" : true,
             "type" : "number"
          },
-         "globalLimit" : {
+         "gradualChangeDuration": {
+            "type" : "number"
+         },
+         "globalLimit": {
             "$ref" : "#/definitions/limit"
          },
          "globalSchedules" : {

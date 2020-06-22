@@ -13,6 +13,7 @@ function ThermostatControl (id, controller) {
     // Call superconstructor first (AutomationModule)
     ThermostatControl.super_.call(this, id, controller);
 
+    this.delay              = new TimeoutManager(this);
     this.minTemperature     = undefined;
     this.maxTemperature     = undefined;
     this.vDevThermostat     = undefined;
@@ -37,7 +38,7 @@ ThermostatControl.prototype.init = function (config) {
     self.maxTemperature = parseFloat(config.globalLimit.maxTemperature)
         || (config.unitTemperature === 'celsius' ? 30 : 85);
 
-    // Create vdev thermostat
+    // Create vDev thermostat
     self.vDevThermostat = self.controller.devices.create({
         deviceId: "ThermostatControl_Thermostat_" + self.id,
         defaults: {
@@ -63,7 +64,7 @@ ThermostatControl.prototype.init = function (config) {
                 var level = self.checkLimit(parseFloat(args.level));
                 self.log('Manually changing setpoint to '+level);
                 self.vDevThermostat.set("metrics:level", level);
-                self.calculateSetpoint('setpoint');
+                self.calculateSetpoint('manual');
             }
         },
         moduleId: this.id
@@ -88,7 +89,7 @@ ThermostatControl.prototype.init = function (config) {
             if (command === 'on' || command === 'off') {
                 this.set('metrics:level',command);
                 if (oldLevel !== command && command === 'on') {
-                    self.calculateSetpoint('setpoint');
+                    self.calculateSetpoint('manual');
                 }
             }
         },
@@ -135,6 +136,8 @@ ThermostatControl.prototype.stop = function() {
     _.each(self.presenceModes,function(presenceMode) {
         self.controller.off("presence."+presenceMode, self.callbackEvent);
     });
+
+    self.delay.clearAll();
 
     self.controller.off(self.cronName,self.callbackEvent);
     self.controller.emit("cron.removeTask",self.cronName);
@@ -191,18 +194,18 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     source = source || 'unknown';
     if (typeof(source) === 'object'
         && typeof(source.hour) !== 'undefined') {
-        source = 'Cron ' + source.hour + ':' + source.minute;
+        source = 'cron ' + source.hour + ':' + source.minute;
     }
     source = source.toString();
     self.log('Calculating setpoints due to '+source);
 
-    var fromZone        = source.match(/^zone\.[0-9]+$/);
-    var dateNow         = new Date();
-    var dayNow          = dateNow.getDay();
-    var presenceNow     = self.getPresenceMode();
-    var curSetpoint     = self.vDevThermostat.get('metrics:level');
-    var calcSetpoint    = self.vDevThermostat.get('metrics:calculatedLevel');
-    var globalSetpoint  = self.config.defaultTemperature;
+    var fromZone                = source.match(/^zone\.[0-9]+$/);
+    var dateNow                 = new Date();
+    var dayNow                  = dateNow.getDay();
+    var presenceNow             = self.getPresenceMode();
+    var curSetpoint             = self.vDevThermostat.get('metrics:level');
+    var calcSetpoint            = self.vDevThermostat.get('metrics:calculatedLevel');
+    var globalSetpoint          = self.config.defaultTemperature;
 
     var evalSchedule    = function(schedule) {
         // Check presence mode
@@ -224,7 +227,7 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
     };
 
     // Find global schedules & set global setpoint
-    if (source !== 'setpoint'
+    if (source !== 'manual'
         && ! fromZone) {
         _.find(self.config.globalSchedules,function(schedule) {
             if (evalSchedule(schedule) === false) {
@@ -236,9 +239,10 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
             } else if (schedule.mode === 'relative') {
                 globalSetpoint = self.config.defaultTemperature + parseFloat(schedule.setpoint);
             }
-            globalSetpoint = self.checkLimit(globalSetpoint);
             return true;
         });
+
+        globalSetpoint = self.checkLimit(globalSetpoint);
         self.vDevThermostat.set('metrics:calculatedLevel',globalSetpoint);
         // Change setpoint
         if (curSetpoint !== globalSetpoint) {
@@ -259,8 +263,9 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
 
     // Process zones
     _.each(self.config.zones,function(zone,index) {
-        var zoneSetpoint = globalSetpoint;
+        var zoneSetpoint        = globalSetpoint;
 
+        // Calculate only select zone if source == zone.$index, otherwise all
         if (source === 'zone.'+index
             || ! fromZone) {
             // Find zone schedules
@@ -273,20 +278,60 @@ ThermostatControl.prototype.calculateSetpoint = function(source) {
                 } else if (schedule.mode === 'relative') {
                     zoneSetpoint = globalSetpoint + parseFloat(schedule.setpoint);
                 }
-                return zoneSetpoint;
+                return true;
             });
+
             zoneSetpoint = self.checkLimit(zoneSetpoint,zone.limit);
             self.log('Changing zone '+index+' to '+zoneSetpoint);
 
             // Set devices
             self.processDeviceList(zone.devices,function(deviceObject) {
-                self.log('Setting '+deviceObject.get('metrics:title')+' to '+zoneSetpoint);
-                deviceObject.set('metrics:calculatedLevel',zoneSetpoint);
-                deviceObject.performCommand('exact',{ level: zoneSetpoint });
+                self.setThermostat(deviceObject, zoneSetpoint);
             });
         }
     });
+};
 
+ThermostatControl.prototype.setThermostat = function(deviceObject, setpoint) {
+    var self = this;
+
+    var gradualChangeDuration = self.config.gradualChangeDuration || 0;
+    deviceObject.set('metrics:target',setpoint);
+    var currentSetpoint = parseFloat(deviceObject.get('metrics:level'));
+
+    // Clear thermostat delay timeout
+    self.delay.clear(deviceObject.id);
+
+    // Noting to do here
+    if (currentSetpoint === setpoint) {
+        return;
+    }
+
+    var newSetpoint = setpoint;
+
+    // Gradual change or not
+    if (gradualChangeDuration > 0
+        && setpoint > currentSetpoint) {
+        var diffStep        = parseFloat(deviceObject.get('metrics:step')) || 0.5;
+        var diffSetpoint    = setpoint - currentSetpoint;
+
+        // More than one step
+        if (Math.abs(diffSetpoint) > diffStep) {
+            self.log('Gradually setting '+deviceObject.get('metrics:title')+' to '+setpoint);
+            var diffSteps   = Math.abs(diffSetpoint / diffStep);
+
+            // Delay new setpoint
+            this.delay.replace(deviceObject.id,function() {
+                self.setThermostat(deviceObject, setpoint);
+            },gradualChangeDuration * 1000 * 60);
+
+            newSetpoint = currentSetpoint + diffStep;
+        }
+    }
+
+    self.log('Setting '+deviceObject.get('metrics:title')+' to '+newSetpoint);
+    deviceObject.set('metrics:calculatedLevel',newSetpoint);
+    deviceObject.performCommand('exact',{ level: newSetpoint });
 };
 
 ThermostatControl.prototype.checkLimit = function(level,limit) {
